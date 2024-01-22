@@ -10,6 +10,7 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.widget.Button
+import android.widget.EditText
 import android.widget.Toast
 import android.widget.VideoView
 import androidx.appcompat.app.AppCompatActivity
@@ -18,12 +19,6 @@ import androidx.core.content.ContextCompat
 import com.arthenica.mobileffmpeg.FFmpeg
 import java.io.File
 import java.util.Calendar
-import android.util.Log
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import java.io.BufferedReader
-import java.io.InputStreamReader
 
 class MainActivity : AppCompatActivity() {
 
@@ -84,33 +79,48 @@ class MainActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == REQUEST_VIDEO_CODE && resultCode == RESULT_OK && data != null) {
+
             val selectedVideoUri: Uri = data.data!!
-            val videoView: VideoView = findViewById(R.id.videoView)
-            videoView.setVideoURI(selectedVideoUri)
-            videoView.start()
 
-            val originalPath = getRealPathFromUri(selectedVideoUri)
-            val outputDirectory = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "ReducedResolution")
-            outputDirectory.mkdirs()
+            // Obtener las dimensiones personalizadas desde los campos de entrada
+            val width = findViewById<EditText>(R.id.editTextWidth).text.toString()
+            val height = findViewById<EditText>(R.id.editTextHeight).text.toString()
+            val fps = findViewById<EditText>(R.id.editTextFPS).text.toString()
 
-            val currentDateTime = obtenerFechaYHoraActual()
-            val outputFilePath = File(outputDirectory, "${currentDateTime}.mp4").absolutePath
 
-            reduceResolution(originalPath, outputFilePath)
+            // Validar si se ingresaron valores válidos
+            if (width.isNotEmpty() && height.isNotEmpty() && fps.isNotEmpty()) {
+                val videoView: VideoView = findViewById(R.id.videoView)
+                videoView.setVideoURI(selectedVideoUri)
+                videoView.start()
+
+                val originalPath = getRealPathFromUri(selectedVideoUri)
+                val outputDirectory =
+                    File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES), "ReducedResolution")
+                outputDirectory.mkdirs()
+
+                val currentDateTime = obtenerFechaYHoraActual()
+                val outputFilePath = File(outputDirectory, "${currentDateTime}.mp4").absolutePath
+
+                // Llamar a reduceResolution con las dimensiones y FPS personalizados
+                reduceResolution(originalPath, outputFilePath, width, height, fps)
+            } else {
+                showToast("Ingrese valores válidos para la resolución.")
+            }
 
         } else {
             showToast("No se seleccionó ningún video.")
         }
     }
 
-    private fun reduceResolution(inputPath: String, outputPath: String) {
-
+    private fun reduceResolution(inputPath: String, outputPath: String, width: String, height: String, fps: String) {
 
         val command = arrayOf(
             "-i", inputPath,
-            "-vf", "scale=iw:ih",       // No reducir la resolución
-            "-b:v", "500K", // Ajusta esto según tus necesidades, por ejemplo: "2M" para 2 Mbps
-            "-c:a", "copy",             // Mantener el audio sin cambios
+            "-vf", "scale=$width:$height",  // Utilizar las dimensiones personalizadas
+            "-r", fps,                       // Establecer los FPS deseados
+            "-b:v", "500K",                  // Ajustar según sea necesario
+            "-c:a", "copy",
             outputPath
         )
 
@@ -146,9 +156,12 @@ class MainActivity : AppCompatActivity() {
         val hora = calendario.get(Calendar.HOUR_OF_DAY)
         val minuto = calendario.get(Calendar.MINUTE)
         val segundo = calendario.get(Calendar.SECOND)
-        return "$dia$mes$anio$hora$minuto$segundo"
+
+        // Formatear el mes con dos dígitos
+        val mesFormateado = if (mes < 10) "0$mes" else mes.toString()
+
+        return "$dia$mesFormateado$anio$hora$minuto$segundo"
     }
-    
 
 }
 

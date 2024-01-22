@@ -7,15 +7,52 @@
 
     <VideoView
         android:id="@+id/videoView"
+        android:layout_width="388dp"
+        android:layout_height="187dp"
+        android:layout_centerInParent="true" />
+
+    <LinearLayout
+        android:id="@+id/editTextLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/selectFileButton"/>
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_above="@+id/selectFileButton"
+        android:padding="16dp">
+
+        <EditText
+            android:id="@+id/editTextWidth"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Width"
+            android:inputType="number|numberSigned" />
+
+        <EditText
+            android:id="@+id/editTextHeight"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="Height"
+            android:inputType="number|numberSigned" />
+
+        <EditText
+            android:id="@+id/editTextFPS"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="FPS"
+            android:inputType="number|numberSigned" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/selectFileButton"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:text="Select Video"/>
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="67dp"
+        android:text="Select Video" />
+
 
 </RelativeLayout>
