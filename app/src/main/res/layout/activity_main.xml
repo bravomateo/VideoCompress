@@ -1,47 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="263dp"
+        android:layout_height="59dp"
+        android:layout_marginTop="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/capiro" />
+
     <VideoView
         android:id="@+id/videoView"
         android:layout_width="388dp"
-        android:layout_height="187dp"
-        android:layout_centerInParent="true" />
+        android:layout_height="200dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.5"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+
+
+    <TextView
+        android:id="@+id/textViewCaracteristicas"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="64dp"
+        android:gravity="center"
+        android:text="Compression Characteristics"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:textColor="@color/orange"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/videoView" />
+
 
     <LinearLayout
         android:id="@+id/editTextLayout"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="16dp"
         android:orientation="horizontal"
-        android:layout_above="@+id/selectFileButton"
-        android:padding="16dp">
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCaracteristicas">
+
 
         <EditText
             android:id="@+id/editTextWidth"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:gravity="center"
             android:hint="Width"
-            android:inputType="number|numberSigned" />
+            android:inputType="number|numberSigned"
+            android:textColor="@color/black" />
 
         <EditText
             android:id="@+id/editTextHeight"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:gravity="center"
             android:hint="Height"
-            android:inputType="number|numberSigned" />
+            android:inputType="number|numberSigned"
+            android:textColor="@color/black" />
 
         <EditText
             android:id="@+id/editTextFPS"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:gravity="center"
             android:hint="FPS"
-            android:inputType="number|numberSigned" />
+            android:inputType="number|numberSigned"
+            android:textColor="@color/black" />
 
     </LinearLayout>
 
@@ -49,10 +93,13 @@
         android:id="@+id/selectFileButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="67dp"
-        android:text="Select Video" />
+        android:layout_marginTop="32dp"
+        android:backgroundTint="@color/green"
+        android:text="Select Video"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextLayout" />
 
 
-</RelativeLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

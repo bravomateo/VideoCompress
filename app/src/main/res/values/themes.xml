@@ -1,9 +1,12 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
     <!-- Base application theme. -->
     <style name="Base.Theme.VideoResolution" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <item name="colorPrimary">@color/green</item>
+        <item name="colorPrimaryVariant">@color/green</item>
+        <item name="colorOnPrimary">@color/green</item>
+        <item name="android:navigationBarColor" tools:targetApi="1">?attr/colorPrimaryVariant</item>
     </style>
 
     <style name="Theme.VideoResolution" parent="Base.Theme.VideoResolution" />
+
 </resources>
