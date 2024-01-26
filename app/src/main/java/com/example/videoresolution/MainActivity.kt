@@ -9,6 +9,7 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -17,8 +18,18 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.arthenica.mobileffmpeg.FFmpeg
-import java.io.File
+import com.google.gson.annotations.SerializedName
 import java.util.Calendar
+import okhttp3.MediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import java.io.File
+import okhttp3.OkHttpClient
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
 
@@ -104,6 +115,7 @@ class MainActivity : AppCompatActivity() {
 
                 // Llamar a reduceResolution con las dimensiones y FPS personalizados
                 reduceResolution(originalPath, outputFilePath, width, height, fps)
+
             } else {
                 showToast("Ingrese valores válidos para la resolución.")
             }
@@ -117,21 +129,82 @@ class MainActivity : AppCompatActivity() {
 
         val command = arrayOf(
             "-i", inputPath,
-            "-vf", "scale=$width:$height",  // Utilizar las dimensiones personalizadas
-            "-r", fps,                       // Establecer los FPS deseados
-            "-b:v", "500K",                  // Ajustar según sea necesario
+            "-vf", "scale=$width:$height",   //  Utilizar las dimensiones personalizadas
+            "-r", fps,                       //  Establecer los FPS deseados
+            "-b:v", "500K",                  //  Ajustar según sea necesario
             "-c:a", "copy",
             outputPath
         )
 
         val result = FFmpeg.execute(command)
 
+
         if (result == 0) {
             showToast("Video comprimido exitosamente")
+
+            // Subir el video procesado al servidor
+            val processedVideoFile = File(outputPath)
+            uploadVideoToServer(processedVideoFile)
         } else {
             showToast("Error al reducir la resolución del video")
         }
     }
+
+    private fun uploadVideoToServer(videoFile: File) {
+        val videoService = RetrofitClient.instance
+
+        // Crear un objeto de tipo RequestBody a partir del archivo
+        val requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), videoFile)
+
+        // Crear la parte MultipartBody
+        val videoPart = MultipartBody.Part.createFormData("video", videoFile.name, requestFile)
+
+        // Hacer la llamada a la API
+        val call = videoService.uploadVideo(videoPart)
+
+        call.enqueue(object : Callback<YourResponseModel> {
+            override fun onResponse(call: Call<YourResponseModel>, response: Response<YourResponseModel>) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    showToast("Video subido exitosamente al servidor.")
+                } else {
+                    showToast("Error al subir el video al servidor.")
+                }
+            }
+
+            override fun onFailure(call: Call<YourResponseModel>, t: Throwable) {
+                showToast("Error en la solicitud al servidor: ${t.message}")
+                Log.e("UploadVideo", "Error en la solicitud al servidor: ${t.message}", t)
+            }
+        }
+        )
+    }
+
+    data class YourResponseModel(
+        @SerializedName("error") val error: Boolean,
+        @SerializedName("message") val message: Message
+    )
+    data class Message(
+        @SerializedName("filename") val filename: String
+    )
+    object RetrofitClient {
+        private const val BASE_URL = "http://192.168.161.45:8000"
+
+        private val okHttpClient = OkHttpClient.Builder()
+            .build()
+
+        val instance: VideoService by lazy {
+            val retrofit = Retrofit.Builder()
+                .baseUrl(BASE_URL)
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+
+            retrofit.create(VideoService::class.java)
+        }
+    }
+
+
 
     private fun getRealPathFromUri(uri: Uri): String {
         val contentResolver: ContentResolver = contentResolver
@@ -160,7 +233,7 @@ class MainActivity : AppCompatActivity() {
         // Formatear el mes con dos dígitos
         val mesFormateado = if (mes < 10) "0$mes" else mes.toString()
 
-        return "$dia$mesFormateado$anio$hora$minuto$segundo"
+        return "$dia-$mesFormateado-$anio-$hora-$minuto-$segundo"
     }
 
 }
