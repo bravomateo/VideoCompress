@@ -1,10 +1,12 @@
 package com.example.videoresolution
 
 import android.Manifest
+import android.app.ProgressDialog
 import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
+import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -35,6 +37,7 @@ class MainActivity : AppCompatActivity() {
 
     private val REQUEST_PERMISSION_CODE = 123
     private val REQUEST_VIDEO_CODE = 456
+    private lateinit var progressDialog: ProgressDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -113,8 +116,12 @@ class MainActivity : AppCompatActivity() {
                 val currentDateTime = obtenerFechaYHoraActual()
                 val outputFilePath = File(outputDirectory, "${currentDateTime}.mp4").absolutePath
 
-                // Llamar a reduceResolution con las dimensiones y FPS personalizados
-                reduceResolution(originalPath, outputFilePath, width, height, fps)
+                // Mostrar el diálogo de progreso
+                progressDialog = ProgressDialog.show(this, "Procesando", "Convirtiendo video...", true, false)
+
+                // Llamar a reduceResolution con las dimensiones y FPS personalizados utilizando AsyncTask
+                VideoConversionTask(outputFilePath).execute(originalPath, outputFilePath, width, height, fps)
+
 
             } else {
                 showToast("Ingrese valores válidos para la resolución.")
@@ -125,28 +132,40 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun reduceResolution(inputPath: String, outputPath: String, width: String, height: String, fps: String) {
 
-        val command = arrayOf(
-            "-i", inputPath,
-            "-vf", "scale=$width:$height",   //  Utilizar las dimensiones personalizadas
-            "-r", fps,                       //  Establecer los FPS deseados
-            "-b:v", "500K",                  //  Ajustar según sea necesario
-            "-c:a", "copy",
-            outputPath
-        )
+    private inner class VideoConversionTask(private val outputPath: String) :
+        AsyncTask<String, Void, Int>() {
 
-        val result = FFmpeg.execute(command)
+        override fun doInBackground(vararg params: String?): Int {
+            val inputPath = params[0] ?: ""
+            val width = params[2] ?: ""
+            val height = params[3] ?: ""
+            val fps = params[4] ?: ""
 
+            val command = arrayOf(
+                "-i", inputPath,
+                "-vf", "scale=$width:$height",   //  Utilizar las dimensiones personalizadas
+                "-r", fps,                       //  Establecer los FPS deseados
+                "-b:v", "500K",                  //  Ajustar según sea necesario
+                "-c:a", "copy",
+                outputPath
+            )
 
-        if (result == 0) {
-            showToast("Video comprimido exitosamente")
+            return FFmpeg.execute(command)
+        }
 
-            // Subir el video procesado al servidor
-            val processedVideoFile = File(outputPath)
-            uploadVideoToServer(processedVideoFile)
-        } else {
-            showToast("Error al reducir la resolución del video")
+        override fun onPostExecute(result: Int) {
+            progressDialog.dismiss()
+
+            if (result == 0) {
+                showToast("Video comprimido exitosamente")
+
+                // Subir el video procesado al servidor
+                val processedVideoFile = File(outputPath)
+                uploadVideoToServer(processedVideoFile)
+            } else {
+                showToast("Error al reducir la resolución del video")
+            }
         }
     }
 
@@ -188,7 +207,7 @@ class MainActivity : AppCompatActivity() {
         @SerializedName("filename") val filename: String
     )
     object RetrofitClient {
-        private const val BASE_URL = "http://192.168.161.45:8000"
+        private const val BASE_URL = "http://192.168.58.103:8000"
 
         private val okHttpClient = OkHttpClient.Builder()
             .build()
@@ -203,8 +222,6 @@ class MainActivity : AppCompatActivity() {
             retrofit.create(VideoService::class.java)
         }
     }
-
-
 
     private fun getRealPathFromUri(uri: Uri): String {
         val contentResolver: ContentResolver = contentResolver
@@ -237,22 +254,3 @@ class MainActivity : AppCompatActivity() {
     }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
