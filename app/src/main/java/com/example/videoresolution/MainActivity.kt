@@ -47,8 +47,35 @@ class MainActivity : AppCompatActivity() {
         selectFileButton.setOnClickListener {
             checkPermissionsAndOpenFilePicker()
         }
-    }
 
+        val syncButton: Button = findViewById(R.id.syncButton)
+        syncButton.setOnClickListener {
+            val call = RetrofitClient.instanceForGet.getBlocks()
+
+            call.enqueue(object : Callback<List<BlockItem>> {
+                override fun onResponse(call: Call<List<BlockItem>>, response: Response<List<BlockItem>>) {
+                    if (response.isSuccessful) {
+                        val blocksList = response.body()
+
+                        if (blocksList != null) {
+                            showToast("Bloques obtenidos.")
+                            for (block in blocksList) {
+                                // Imprimir los elementos de cada bloque
+                                Log.d("BlockItem", "Block Number: ${block.blockNumber}, IsActive: ${block.isActive}, Area: ${block.area}")
+                            }
+                        }
+                    } else {
+                        showToast("Error al obtener bloques del servidor.")
+                    }
+                }
+
+                override fun onFailure(call: Call<List<BlockItem>>, t: Throwable) {
+                    showToast("Error en la solicitud al servidor: ${t.message}")
+                    Log.e("GetBlocks", "Error en la solicitud al servidor: ${t.message}", t)
+                }
+            })
+        }
+    }
     private fun checkPermissionsAndOpenFilePicker() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(
@@ -68,12 +95,10 @@ class MainActivity : AppCompatActivity() {
             openFilePicker()
         }
     }
-
     private fun openFilePicker() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(intent, REQUEST_VIDEO_CODE)
     }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -88,7 +113,6 @@ class MainActivity : AppCompatActivity() {
             showToast("Permiso denegado. No se puede seleccionar el video.")
         }
     }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -104,9 +128,6 @@ class MainActivity : AppCompatActivity() {
 
             // Validar si se ingresaron valores válidos
             if (width.isNotEmpty() && height.isNotEmpty() && fps.isNotEmpty()) {
-                val videoView: VideoView = findViewById(R.id.videoView)
-                videoView.setVideoURI(selectedVideoUri)
-                videoView.start()
 
                 val originalPath = getRealPathFromUri(selectedVideoUri)
                 val outputDirectory =
@@ -132,7 +153,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private inner class VideoConversionTask(private val outputPath: String) :
         AsyncTask<String, Void, Int>() {
 
@@ -142,43 +162,90 @@ class MainActivity : AppCompatActivity() {
             val height = params[3] ?: ""
             val fps = params[4] ?: ""
 
-            val command = arrayOf(
+            // Primero: Reducción de fotogramas
+            val tempOutputPath = getTempFilePath()
+            val frameReductionCommand = arrayOf(
                 "-i", inputPath,
-                "-vf", "scale=$width:$height",   //  Utilizar las dimensiones personalizadas
-                "-r", fps,                       //  Establecer los FPS deseados
-                "-b:v", "500K",                  //  Ajustar según sea necesario
-                "-c:a", "copy",
-                outputPath
+                "-r", fps,
+                tempOutputPath
             )
 
-            return FFmpeg.execute(command)
+            val frameReductionResult = FFmpeg.execute(frameReductionCommand)
+            if (frameReductionResult != 0) {
+                return frameReductionResult // Error en la reducción de fotogramas
+            }
+
+            // Segundo: Reducción de resolución
+            val resolutionReductionCommand = arrayOf(
+                "-i", tempOutputPath,
+                "-vf", "scale=$width:$height",
+                "-b:v", "10K",
+                "-an",  // Agregar esta opción para mutear el audio
+                outputPath
+            )
+            return FFmpeg.execute(resolutionReductionCommand)
         }
 
         override fun onPostExecute(result: Int) {
             progressDialog.dismiss()
 
             if (result == 0) {
-                showToast("Video comprimido exitosamente")
+                showToast("Video procesado exitosamente")
+
+                // Cargar la información al servidor
+                val bed = findViewById<EditText>(R.id.editTextBed).text.toString()
+                val farm = findViewById<EditText>(R.id.editTextFarm).text.toString()
+                val block = findViewById<EditText>(R.id.editTextBlock).text.toString()
+
+                uploadInfoToServer(bed, farm, block)
 
                 // Subir el video procesado al servidor
                 val processedVideoFile = File(outputPath)
                 uploadVideoToServer(processedVideoFile)
             } else {
-                showToast("Error al reducir la resolución del video")
+                showToast("Error al procesar el video")
             }
         }
+
+
+        private fun getTempFilePath(): String {
+            val outputDirectory = File(cacheDir, "Temp")
+            outputDirectory.mkdirs()
+            val currentDateTime = obtenerFechaYHoraActual()
+            return File(outputDirectory, "${currentDateTime}_temp.mp4").absolutePath
+        }
     }
+
+    private fun uploadInfoToServer(bed: String, farm: String, block: String) {
+        val videoService = RetrofitClient.instance
+
+        val call = videoService.uploadInfo(bed, farm, block)
+
+        call.enqueue(object : Callback<YourResponseModel> {
+            override fun onResponse(call: Call<YourResponseModel>, response: Response<YourResponseModel>) {
+                if (response.isSuccessful) {
+                    val responseBody = response.body()
+                    showToast("Información cargada exitosamente.")
+                } else {
+                    showToast("Error cargando información.")
+                }
+            }
+
+            override fun onFailure(call: Call<YourResponseModel>, t: Throwable) {
+                showToast("Error en la solicitud del servidor: ${t.message}")
+                Log.e("UploadInfo", "Error en la solicitud del servidor: ${t.message}", t)
+            }
+        })
+    }
+
 
     private fun uploadVideoToServer(videoFile: File) {
         val videoService = RetrofitClient.instance
 
-        // Crear un objeto de tipo RequestBody a partir del archivo
         val requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), videoFile)
 
-        // Crear la parte MultipartBody
         val videoPart = MultipartBody.Part.createFormData("video", videoFile.name, requestFile)
 
-        // Hacer la llamada a la API
         val call = videoService.uploadVideo(videoPart)
 
         call.enqueue(object : Callback<YourResponseModel> {
@@ -207,14 +274,25 @@ class MainActivity : AppCompatActivity() {
         @SerializedName("filename") val filename: String
     )
     object RetrofitClient {
-        private const val BASE_URL = "http://192.168.58.103:8000"
+        private const val BASE_URL_UPLOAD = "http://192.168.161.45:8000"
+        private const val BASE_URL_GET = "http://10.1.2.22:544"
 
         private val okHttpClient = OkHttpClient.Builder()
             .build()
 
         val instance: VideoService by lazy {
             val retrofit = Retrofit.Builder()
-                .baseUrl(BASE_URL)
+                .baseUrl(BASE_URL_UPLOAD)  // Puedes cambiarlo según el servidor al que deseas hacer el POST
+                .client(okHttpClient)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+
+            retrofit.create(VideoService::class.java)
+        }
+
+        val instanceForGet: VideoService by lazy {
+            val retrofit = Retrofit.Builder()
+                .baseUrl(BASE_URL_GET)  // Cambia esto según el servidor del que deseas obtener la lista de bloques
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
@@ -222,6 +300,8 @@ class MainActivity : AppCompatActivity() {
             retrofit.create(VideoService::class.java)
         }
     }
+
+
 
     private fun getRealPathFromUri(uri: Uri): String {
         val contentResolver: ContentResolver = contentResolver

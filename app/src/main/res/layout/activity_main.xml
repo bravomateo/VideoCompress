@@ -19,11 +19,10 @@
 
     <VideoView
         android:id="@+id/videoView"
-        android:layout_width="388dp"
-        android:layout_height="200dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="201dp"
+        android:layout_height="83dp"
+        android:layout_marginTop="20dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
@@ -91,22 +90,74 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:backgroundTint="@color/green"
-        android:text="Select Video"
         android:textColor="@color/white"
+        android:text="Select Video"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.515"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/bedAndFarmLayout" />
 
-    <!-- Agrega el ProgressBar -->
 
-    <ProgressBar
-        android:id="@+id/progressBar"
+    <Button
+        android:id="@+id/syncButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="165dp"
+        android:layout_marginEnd="165dp"
         android:layout_marginTop="16dp"
+        android:backgroundTint="@color/green"
+        android:textColor="@color/white"
+        android:text="Sync"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        android:visibility="invisible"
         app:layout_constraintTop_toBottomOf="@+id/selectFileButton" />
+
+
+    <LinearLayout
+        android:id="@+id/bedAndFarmLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="32dp"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/editTextLayout">
+
+        <EditText
+            android:id="@+id/editTextBed"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:hint="Cama"
+            android:inputType="number|numberSigned"
+            android:textColor="@color/black" />
+
+        <EditText
+            android:id="@+id/editTextFarm"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:hint="Finca"
+            android:inputType="number|numberSigned"
+            android:textColor="@color/black" />
+
+        <EditText
+            android:id="@+id/editTextBlock"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:hint="Bloque"
+            android:inputType="number|numberSigned"
+            android:textColor="@color/black" />
+
+    </LinearLayout>
+
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
