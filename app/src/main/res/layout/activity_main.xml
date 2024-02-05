@@ -5,40 +5,33 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="40dp"
     tools:context=".MainActivity">
+
 
     <ImageView
         android:id="@+id/imageView2"
         android:layout_width="263dp"
         android:layout_height="59dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/capiro" />
 
-    <VideoView
-        android:id="@+id/videoView"
-        android:layout_width="201dp"
-        android:layout_height="83dp"
-        android:layout_marginTop="20dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
-
     <TextView
         android:id="@+id/textViewCaracteristicas"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="32dp"
         android:gravity="center"
         android:text="Compression Characteristics"
+        android:textColor="@color/orange"
         android:textSize="20sp"
         android:textStyle="bold"
-        android:textColor="@color/orange"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/videoView" />
+        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
     <LinearLayout
         android:id="@+id/editTextLayout"
@@ -95,23 +88,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.515"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bedAndFarmLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
 
 
     <Button
         android:id="@+id/syncButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="165dp"
-        android:layout_marginEnd="165dp"
         android:layout_marginTop="16dp"
         android:backgroundTint="@color/green"
-        android:textColor="@color/white"
         android:text="Sync"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/selectFileButton" />
-
 
     <LinearLayout
         android:id="@+id/bedAndFarmLayout"
@@ -157,6 +147,27 @@
             android:textColor="@color/black" />
 
     </LinearLayout>
+
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="Bloque"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bedAndFarmLayout">
+
+        <AutoCompleteTextView
+            android:id="@+id/dropdown_field"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="none" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
 
 
 

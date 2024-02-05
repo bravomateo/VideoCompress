@@ -12,6 +12,8 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.widget.ArrayAdapter
+import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -38,6 +40,9 @@ class MainActivity : AppCompatActivity() {
     private val REQUEST_PERMISSION_CODE = 123
     private val REQUEST_VIDEO_CODE = 456
     private lateinit var progressDialog: ProgressDialog
+    private lateinit var dropdown: AutoCompleteTextView
+    private var selectedBlock: String = "Ningun bloque"
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +52,12 @@ class MainActivity : AppCompatActivity() {
         selectFileButton.setOnClickListener {
             checkPermissionsAndOpenFilePicker()
         }
+
+        // Obtener el AutoCompleteTextView
+        dropdown = findViewById(R.id.dropdown_field)
+        val items = arrayOf("Ningun bloque")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, items)
+        dropdown.setAdapter(adapter)
 
         val syncButton: Button = findViewById(R.id.syncButton)
         syncButton.setOnClickListener {
@@ -59,10 +70,9 @@ class MainActivity : AppCompatActivity() {
 
                         if (blocksList != null) {
                             showToast("Bloques obtenidos.")
-                            for (block in blocksList) {
-                                // Imprimir los elementos de cada bloque
-                                Log.d("BlockItem", "Block Number: ${block.blockNumber}, IsActive: ${block.isActive}, Area: ${block.area}")
-                            }
+                            val blockNumbers = blocksList.map { block -> block.blockNumber }.toTypedArray()
+                            val adapter = ArrayAdapter(this@MainActivity, android.R.layout.simple_dropdown_item_1line, blockNumbers)
+                            dropdown.setAdapter(adapter)
                         }
                     } else {
                         showToast("Error al obtener bloques del servidor.")
@@ -73,6 +83,7 @@ class MainActivity : AppCompatActivity() {
                     showToast("Error en la solicitud al servidor: ${t.message}")
                     Log.e("GetBlocks", "Error en la solicitud al servidor: ${t.message}", t)
                 }
+
             })
         }
     }
@@ -120,13 +131,10 @@ class MainActivity : AppCompatActivity() {
 
             val selectedVideoUri: Uri = data.data!!
 
-            // Obtener las dimensiones personalizadas desde los campos de entrada
             val width = findViewById<EditText>(R.id.editTextWidth).text.toString()
             val height = findViewById<EditText>(R.id.editTextHeight).text.toString()
             val fps = findViewById<EditText>(R.id.editTextFPS).text.toString()
 
-
-            // Validar si se ingresaron valores válidos
             if (width.isNotEmpty() && height.isNotEmpty() && fps.isNotEmpty()) {
 
                 val originalPath = getRealPathFromUri(selectedVideoUri)
@@ -137,10 +145,8 @@ class MainActivity : AppCompatActivity() {
                 val currentDateTime = obtenerFechaYHoraActual()
                 val outputFilePath = File(outputDirectory, "${currentDateTime}.mp4").absolutePath
 
-                // Mostrar el diálogo de progreso
                 progressDialog = ProgressDialog.show(this, "Procesando", "Convirtiendo video...", true, false)
 
-                // Llamar a reduceResolution con las dimensiones y FPS personalizados utilizando AsyncTask
                 VideoConversionTask(outputFilePath).execute(originalPath, outputFilePath, width, height, fps)
 
 
@@ -162,7 +168,6 @@ class MainActivity : AppCompatActivity() {
             val height = params[3] ?: ""
             val fps = params[4] ?: ""
 
-            // Primero: Reducción de fotogramas
             val tempOutputPath = getTempFilePath()
             val frameReductionCommand = arrayOf(
                 "-i", inputPath,
@@ -172,15 +177,14 @@ class MainActivity : AppCompatActivity() {
 
             val frameReductionResult = FFmpeg.execute(frameReductionCommand)
             if (frameReductionResult != 0) {
-                return frameReductionResult // Error en la reducción de fotogramas
+                return frameReductionResult
             }
 
-            // Segundo: Reducción de resolución
             val resolutionReductionCommand = arrayOf(
                 "-i", tempOutputPath,
                 "-vf", "scale=$width:$height",
                 "-b:v", "10K",
-                "-an",  // Agregar esta opción para mutear el audio
+                "-an",
                 outputPath
             )
             return FFmpeg.execute(resolutionReductionCommand)
