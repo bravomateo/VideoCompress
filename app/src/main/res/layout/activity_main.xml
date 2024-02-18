@@ -8,9 +8,8 @@
     android:padding="40dp"
     tools:context=".MainActivity">
 
-
     <ImageView
-        android:id="@+id/imageView2"
+        android:id="@+id/imageViewCapiro"
         android:layout_width="263dp"
         android:layout_height="59dp"
         android:layout_marginTop="16dp"
@@ -31,7 +30,7 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageView2" />
+        app:layout_constraintTop_toBottomOf="@+id/imageViewCapiro" />
 
     <LinearLayout
         android:id="@+id/editTextLayout"
@@ -44,7 +43,7 @@
         android:padding="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewCaracteristicas">
+        app:layout_constraintTop_toBottomOf="@+id/bedAndFarmLayout">
 
         <EditText
             android:id="@+id/editTextWidth"
@@ -77,19 +76,18 @@
             android:textColor="@color/black" />
     </LinearLayout>
 
+
     <Button
         android:id="@+id/selectFileButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:backgroundTint="@color/green"
-        android:textColor="@color/white"
         android:text="Select Video"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.515"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout" />
-
+        app:layout_constraintTop_toBottomOf="@+id/editTextLayout" />
 
     <Button
         android:id="@+id/syncButton"
@@ -107,14 +105,15 @@
         android:id="@+id/bedAndFarmLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="32dp"
+        android:layout_marginStart="86dp"
         android:layout_marginTop="16dp"
-        android:layout_marginEnd="32dp"
+        android:layout_marginEnd="86dp"
         android:orientation="horizontal"
         android:padding="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/editTextLayout">
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutBlock">
+
 
         <EditText
             android:id="@+id/editTextBed"
@@ -122,53 +121,30 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:hint="Cama"
+            android:hint="Bed"
             android:inputType="number|numberSigned"
             android:textColor="@color/black" />
-
-        <EditText
-            android:id="@+id/editTextFarm"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:hint="Finca"
-            android:inputType="number|numberSigned"
-            android:textColor="@color/black" />
-
-        <EditText
-            android:id="@+id/editTextBlock"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:hint="Bloque"
-            android:inputType="number|numberSigned"
-            android:textColor="@color/black" />
-
     </LinearLayout>
 
 
     <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout"
+        android:id="@+id/textInputLayoutBlock"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:hint="Bloque"
+        android:layout_marginTop="64dp"
+        android:hint="Block"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bedAndFarmLayout">
+        app:layout_constraintTop_toBottomOf="@+id/textViewCaracteristicas">
 
         <AutoCompleteTextView
-            android:id="@+id/dropdown_field"
+            android:id="@+id/dropdown_field_blocks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:inputType="none" />
+            android:inputType="none"/>
 
     </com.google.android.material.textfield.TextInputLayout>
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
