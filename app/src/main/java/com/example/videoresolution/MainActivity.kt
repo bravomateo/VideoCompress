@@ -5,6 +5,9 @@ import android.app.ProgressDialog
 import android.content.ContentResolver
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
+import android.graphics.Matrix
+import android.media.MediaMetadataRetriever
 import android.net.Uri
 import android.os.AsyncTask
 import android.os.Build
@@ -12,11 +15,14 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -45,6 +51,8 @@ class MainActivity : AppCompatActivity() {
     private lateinit var selectedBlock: String
 
     private lateinit var selectedFarm: String
+    private var selectedOrientationDegrees = 0f
+
 
 
     private fun obtenerFechaYHoraActual(): String {
@@ -82,12 +90,6 @@ class MainActivity : AppCompatActivity() {
         blockDropdown.setOnItemClickListener { _, _, position, _ ->
             selectedBlock = blockDropdown.adapter.getItem(position).toString()
         }
-
-
-        /*
-        farmsDropdown.setOnItemClickListener { _, _, position, _ ->
-            selectedFarm = farmsDropdown.adapter.getItem(position).toString()
-        }*/
 
         selectedFarm = intent.getStringExtra("selectedFarm") ?: ""
 
@@ -139,6 +141,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private var currentRotationDegrees = 0f // Variable para almacenar el ángulo de rotación actual
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -162,16 +166,10 @@ class MainActivity : AppCompatActivity() {
                 val currentDateTime = obtenerFechaYHoraActual()
                 val outputFilePath = File(outputDirectory, "${currentDateTime}.mp4").absolutePath
 
-                progressDialog =
-                    ProgressDialog.show(this, "Procesando", "Convirtiendo video...", true, false)
+                progressDialog = ProgressDialog.show(this, "Procesando", "Convirtiendo video...", true, false)
 
-                VideoConversionTask(outputFilePath).execute(
-                    originalPath,
-                    outputFilePath,
-                    width,
-                    height,
-                    fps
-                )
+                // Llama directamente a la selección de orientación
+                showFirstFramePreview(selectedVideoUri, originalPath, outputFilePath, width, height, fps)
 
 
             } else {
@@ -183,8 +181,63 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private inner class VideoConversionTask(private val outputPath: String) :
+    private fun showFirstFramePreview(videoUri: Uri, originalPath: String, outputFilePath: String, width: String, height: String, fps: String) {
+        val retriever = MediaMetadataRetriever()
+        retriever.setDataSource(this, videoUri)
+        val timeMicros = 0L
+        val firstFrameBitmap = retriever.getFrameAtTime(timeMicros)
+
+
+        val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_preview, null)
+        val imageView = dialogView.findViewById<ImageView>(R.id.previewImageView)
+        val rotateButton = dialogView.findViewById<Button>(R.id.rotateButton)
+        val acceptButton = dialogView.findViewById<Button>(R.id.acceptButton)
+
+        imageView.setImageBitmap(firstFrameBitmap)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+        rotateButton.setOnClickListener {
+            firstFrameBitmap?.let { bitmap ->
+                selectedOrientationDegrees = (selectedOrientationDegrees + 90) % 360
+                val rotatedBitmap = rotateBitmap(bitmap, selectedOrientationDegrees)
+                imageView.setImageBitmap(rotatedBitmap)
+            }
+        }
+
+        acceptButton.setOnClickListener {
+            dialog.dismiss()  // Cerrar el cuadro de diálogo al hacer clic en "Aceptar"
+
+            // Imprimir el valor de selectedOrientationDegrees
+            Log.e("SelectedOrientation", "Valor de selectedOrientationDegrees: $selectedOrientationDegrees")
+
+            // Llamar a la tarea de conversión de video y pasar la orientación seleccionada
+            VideoConversionTask(outputFilePath, selectedOrientationDegrees).execute(
+                originalPath,
+                outputFilePath,
+                width,
+                height,
+                fps
+            )
+            selectedOrientationDegrees = 0f;
+        }
+
+        dialog.show()
+    }
+
+    private fun rotateBitmap(source: Bitmap, degrees: Float): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(degrees)
+        return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
+    }
+
+
+    private inner class VideoConversionTask(private val outputPath: String, private val orientationDegrees: Float) :
         AsyncTask<String, Void, Int>() {
+
 
         override fun doInBackground(vararg params: String?): Int {
             val inputPath = params[0] ?: ""
@@ -204,8 +257,23 @@ class MainActivity : AppCompatActivity() {
                 return frameReductionResult
             }
 
+
+            val rotatedTempOutputPath = getTempFilePath()
+            val rotationCommand = when (orientationDegrees) {
+                90.0f  -> arrayOf("-i", tempOutputPath, "-vf", "transpose=3", rotatedTempOutputPath)
+                180.0f -> arrayOf("-i", tempOutputPath, "-vf", "transpose=2,transpose=2", rotatedTempOutputPath)
+                270.0f -> arrayOf("-i", tempOutputPath, "-vf", "transpose=2", rotatedTempOutputPath)
+                0.0f   -> arrayOf("-i", tempOutputPath,  rotatedTempOutputPath)
+                else   -> arrayOf("-i", tempOutputPath, "-vf", rotatedTempOutputPath)
+            }
+
+            val rotationResult = FFmpeg.execute(rotationCommand)
+            if (rotationResult != 0) {
+                return rotationResult
+            }
+
             val resolutionReductionCommand = arrayOf(
-                "-i", tempOutputPath,
+                "-i", rotatedTempOutputPath, // Use the rotated video
                 "-vf", "scale=$width:$height",
                 "-b:v", "10K",
                 "-an",
@@ -213,6 +281,10 @@ class MainActivity : AppCompatActivity() {
             )
             return FFmpeg.execute(resolutionReductionCommand)
         }
+
+
+
+
 
         override fun onPostExecute(result: Int) {
             progressDialog.dismiss()
@@ -336,7 +408,7 @@ class MainActivity : AppCompatActivity() {
     )
 
     object RetrofitClient {
-        private const val BASE_URL_UPLOAD = "http://192.168.29.45:8000"
+        private const val BASE_URL_UPLOAD = "http://192.168.58.103:8000"
         private const val BASE_URL_GET = "http://10.1.2.22:544"
 
         private val okHttpClient = OkHttpClient.Builder()
