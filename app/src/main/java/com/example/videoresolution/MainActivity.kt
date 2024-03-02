@@ -408,7 +408,7 @@ class MainActivity : AppCompatActivity() {
     )
 
     object RetrofitClient {
-        private const val BASE_URL_UPLOAD = "http://192.168.58.103:8000"
+        private const val BASE_URL_UPLOAD = "http://192.168.252.45:8000"
         private const val BASE_URL_GET = "http://10.1.2.22:544"
 
         private val okHttpClient = OkHttpClient.Builder()
