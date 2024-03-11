@@ -21,7 +21,10 @@ import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.SeekBar
+import android.widget.TextView
 import android.widget.Toast
+import android.widget.VideoView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
@@ -41,6 +44,8 @@ import okhttp3.OkHttpClient
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.UUID
 
+
+
 class MainActivity : AppCompatActivity() {
 
     private val REQUEST_PERMISSION_CODE = 123
@@ -52,7 +57,6 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var selectedFarm: String
     private var selectedOrientationDegrees = 0f
-
 
 
     private fun obtenerFechaYHoraActual(): String {
@@ -214,15 +218,115 @@ class MainActivity : AppCompatActivity() {
             // Imprimir el valor de selectedOrientationDegrees
             Log.e("SelectedOrientation", "Valor de selectedOrientationDegrees: $selectedOrientationDegrees")
 
-            // Llamar a la tarea de conversión de video y pasar la orientación seleccionada
-            VideoConversionTask(outputFilePath, selectedOrientationDegrees).execute(
+            showTrimVideoDialog(videoUri, originalPath, outputFilePath, width, height, fps)
+
+        }
+
+        dialog.show()
+    }
+
+    private fun showTrimVideoDialog(videoUri: Uri, originalPath: String, outputFilePath: String, width: String, height: String, fps: String) {
+        val dialogView = layoutInflater.inflate(R.layout.trip_video, null)
+        val acceptButtonTrim = dialogView.findViewById<Button>(R.id.acceptButtonTrim)
+
+        val trimSeekBar = dialogView.findViewById<SeekBar>(R.id.seekBar)
+        val progressTextView = dialogView.findViewById<TextView>(R.id.progressTextView) // Obtener referencia al TextView
+        val videoView = dialogView.findViewById<VideoView>(R.id.videoView) // Obtener referencia al VideoView
+
+        val trimSeekEndBar = dialogView.findViewById<SeekBar>(R.id.seekEndBar)
+        val progressEndTextView = dialogView.findViewById<TextView>(R.id.progressEndTextView) // Obtener referencia al TextView
+
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setCancelable(false)
+            .create()
+
+
+        // Duracion total del video
+        val retriever = MediaMetadataRetriever()
+        retriever.setDataSource(this, videoUri)
+        val durationString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
+        val durationTime = durationString?.toInt() ?: 0 // Duración total del video en milisegundos
+
+        videoView.setVideoURI(videoUri)
+        videoView.setOnPreparedListener { mp ->
+            // Iniciar la reproducción del video cuando esté preparado
+            mp.start()
+        }
+
+        trimSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                // Actualizar el texto del TextView con el valor actual del progreso de la barra de búsqueda
+                progressTextView.text = "${progress} seg"
+                val valorbuscadoinicial = progress * 1000
+                Log.d("valorbuscado", "Valor buscado inicial: $valorbuscadoinicial")
+                // Mover el video al segundo correspondiente al progreso de la barra de búsqueda
+                videoView.seekTo(valorbuscadoinicial) // El progreso se da en segundos, por lo que se multiplica por 1000 para convertirlo a milisegundos
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                // Pausar la reproducción del video cuando se toca la barra de búsqueda
+                videoView.pause()
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // Reanudar la reproducción del video cuando se suelta la barra de búsqueda
+                videoView.start()
+            }
+        })
+
+
+
+        // Configurar la segunda barra de búsqueda (final del video)
+        trimSeekEndBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                // Actualizar el texto del TextView con el valor actual del progreso de la barra de búsqueda
+                progressEndTextView.text = "${progress} seg"
+                val valorbuscado = durationTime - progress * 1000
+                // Imprimir el valor de endTime en el registro (log)
+                Log.d("valorbuscado", "Valor buscado final: $valorbuscado")
+                // Mover el video al segundo correspondiente al progreso de la barra de búsqueda
+                videoView.seekTo(valorbuscado) // El progreso se da en segundos, por lo que se multiplica por 1000 para convertirlo a milisegundos
+
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {
+                // Pausar la reproducción del video cuando se toca la barra de búsqueda
+                videoView.pause()
+            }
+
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {
+                // Reanudar la reproducción del video cuando se suelta la barra de búsqueda
+                videoView.start()
+            }
+        })
+
+        acceptButtonTrim.setOnClickListener {
+            dialog.dismiss()
+
+
+
+            // Guardar el valor seleccionado en la barra de progreso como startTime
+            val startTime = trimSeekBar.progress
+            val endTime = durationTime/1000 -trimSeekEndBar.progress
+
+            // Imprimir el valor de endTime en el registro (log)
+            Log.d("EndTime", "Valor de endTime: $endTime")
+
+            // Detener la reproducción del video al cerrar el diálogo
+            videoView.stopPlayback()
+
+
+            // Iniciar el proceso de conversión de video con el nuevo valor de startTime
+            VideoConversionTask(outputFilePath, selectedOrientationDegrees, startTime, endTime).execute(
                 originalPath,
                 outputFilePath,
                 width,
                 height,
                 fps
             )
-            selectedOrientationDegrees = 0f;
+            selectedOrientationDegrees = 0f
         }
 
         dialog.show()
@@ -234,10 +338,12 @@ class MainActivity : AppCompatActivity() {
         return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
     }
 
-
-    private inner class VideoConversionTask(private val outputPath: String, private val orientationDegrees: Float) :
-        AsyncTask<String, Void, Int>() {
-
+    private inner class VideoConversionTask(
+        private val outputPath: String,
+        private val orientationDegrees: Float,
+        private val startTime: Int,
+        private val endTime: Int
+    ) : AsyncTask<String, Void, Int>() {
 
         override fun doInBackground(vararg params: String?): Int {
             val inputPath = params[0] ?: ""
@@ -248,6 +354,8 @@ class MainActivity : AppCompatActivity() {
             val tempOutputPath = getTempFilePath()
             val frameReductionCommand = arrayOf(
                 "-i", inputPath,
+                "-ss", startTime.toString(), // tiempo inicial en segundos
+                "-t", (endTime - startTime).toString(), // duración del recorte en segundos
                 "-r", fps,
                 tempOutputPath
             )
@@ -281,8 +389,6 @@ class MainActivity : AppCompatActivity() {
             )
             return FFmpeg.execute(resolutionReductionCommand)
         }
-
-
 
 
 
@@ -408,7 +514,7 @@ class MainActivity : AppCompatActivity() {
     )
 
     object RetrofitClient {
-        private const val BASE_URL_UPLOAD = "http://192.168.252.45:8000"
+        private const val BASE_URL_UPLOAD = "http://192.168.78.45:8000"
         private const val BASE_URL_GET = "http://10.1.2.22:544"
 
         private val okHttpClient = OkHttpClient.Builder()
@@ -450,6 +556,5 @@ class MainActivity : AppCompatActivity() {
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
-
 
 }
