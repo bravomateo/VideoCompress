@@ -43,7 +43,9 @@ import java.io.File
 import okhttp3.OkHttpClient
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.UUID
-
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -88,7 +90,8 @@ class MainActivity : AppCompatActivity() {
 
         blockDropdown = findViewById(R.id.dropdown_field_blocks)
         val blocksItems = arrayOf("No Block")
-        val blocksAdapter = ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, blocksItems)
+        val blocksAdapter =
+            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, blocksItems)
         blockDropdown.setAdapter(blocksAdapter)
 
         blockDropdown.setOnItemClickListener { _, _, position, _ ->
@@ -102,6 +105,13 @@ class MainActivity : AppCompatActivity() {
             // Show block dropdown
             ApiUtils.getAndSetBlocksDropdown(this, blockDropdown)
         }
+
+        val listVideosButton: Button = findViewById(R.id.ListVideos)
+        listVideosButton.setOnClickListener {
+            val intent = Intent(this, LoginSecActivity::class.java)
+            startActivity(intent)
+        }
+
 
     }
 
@@ -391,7 +401,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
         override fun onPostExecute(result: Int) {
             progressDialog.dismiss()
 
@@ -412,6 +421,11 @@ class MainActivity : AppCompatActivity() {
                 // Subir el video procesado al servidor
                 val processedVideoFile = File(outputPath)
                 uploadVideoToServer(processedVideoFile)
+
+                val intent = Intent(this@MainActivity, LoginSecActivity::class.java)
+                intent.putExtra("videoName", videoName)
+                startActivity(intent)
+
             } else {
                 showToast("Error al procesar el video")
             }
@@ -514,7 +528,7 @@ class MainActivity : AppCompatActivity() {
     )
 
     object RetrofitClient {
-        private const val BASE_URL_UPLOAD = "http://192.168.78.45:8000"
+        private const val BASE_URL_UPLOAD = "http://192.168.58.105:8000"
         private const val BASE_URL_GET = "http://10.1.2.22:544"
 
         private val okHttpClient = OkHttpClient.Builder()

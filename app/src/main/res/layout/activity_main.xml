@@ -101,6 +101,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/selectFileButton" />
 
+    <Button
+        android:id="@+id/ListVideos"
+        android:layout_width="74dp"
+        android:layout_height="36dp"
+        android:layout_marginTop="4dp"
+        android:backgroundTint="@color/green"
+        android:text="List"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.907"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/syncButton" />
+
     <LinearLayout
         android:id="@+id/bedAndFarmLayout"
         android:layout_width="match_parent"
