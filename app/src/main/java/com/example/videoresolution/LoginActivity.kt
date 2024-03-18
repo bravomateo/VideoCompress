@@ -17,6 +17,7 @@ class LoginActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+
         selectedFarm = intent.getStringExtra("selectedFarm") ?: ""
 
         farmsLoginDropdown = findViewById(R.id.dropdown_field_farms)

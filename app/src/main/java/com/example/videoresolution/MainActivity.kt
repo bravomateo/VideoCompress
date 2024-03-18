@@ -29,6 +29,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.room.Room
 import com.arthenica.mobileffmpeg.FFmpeg
 import com.google.gson.annotations.SerializedName
 import java.util.Calendar
@@ -60,7 +61,6 @@ class MainActivity : AppCompatActivity() {
     private lateinit var selectedFarm: String
     private var selectedOrientationDegrees = 0f
 
-
     private fun obtenerFechaYHoraActual(): String {
         val calendario = Calendar.getInstance()
         val mes = calendario.get(Calendar.MONTH) + 1
@@ -82,6 +82,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
 
         val selectFileButton: Button = findViewById(R.id.selectFileButton)
         selectFileButton.setOnClickListener {
