@@ -29,6 +29,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import com.arthenica.mobileffmpeg.FFmpeg
 import com.google.gson.annotations.SerializedName
@@ -82,6 +83,8 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+
 
 
         val selectFileButton: Button = findViewById(R.id.selectFileButton)
@@ -423,9 +426,6 @@ class MainActivity : AppCompatActivity() {
                 val processedVideoFile = File(outputPath)
                 uploadVideoToServer(processedVideoFile)
 
-                val intent = Intent(this@MainActivity, LoginSecActivity::class.java)
-                intent.putExtra("videoName", videoName)
-                startActivity(intent)
 
             } else {
                 showToast("Error al procesar el video")
@@ -463,6 +463,21 @@ class MainActivity : AppCompatActivity() {
                     val responseBody = response.body()
                     if (responseBody != null) {
                         showToast("Información cargada exitosamente.")
+
+                        val db = Room.databaseBuilder(
+                            applicationContext,
+                            AppDatabase::class.java, "database-name"
+                        ).build()
+
+                        val videoDao = db.videoDao()
+
+
+                        // Insertar usuarios en la base de datos
+                        lifecycleScope.launch(Dispatchers.IO) {
+                            val video = Video(null,videoName, resolution)
+                            videoDao.insertAll(video)
+                        }
+
                     } else {
                         showToast("Error cargando información.")
                     }
@@ -529,7 +544,7 @@ class MainActivity : AppCompatActivity() {
     )
 
     object RetrofitClient {
-        private const val BASE_URL_UPLOAD = "http://192.168.58.105:8000"
+        private const val BASE_URL_UPLOAD = "http://192.168.132.45:8000"
         private const val BASE_URL_GET = "http://10.1.2.22:544"
 
         private val okHttpClient = OkHttpClient.Builder()

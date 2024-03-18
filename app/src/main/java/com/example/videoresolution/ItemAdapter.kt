@@ -6,9 +6,8 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-/*
 
-class ItemAdapter(private val people: List<Person>) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
+class ItemAdapter(private val people: List<Video>) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -18,8 +17,8 @@ class ItemAdapter(private val people: List<Person>) : RecyclerView.Adapter<ItemA
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val item = people[position]
-        holder.titleTextView.text = item.title
-        holder.descriptionTextView.text = item.description
+        holder.titleTextView.text = item.nameVideo
+        holder.descriptionTextView.text = item.resolutionVideo
     }
 
     override fun getItemCount(): Int {
@@ -31,5 +30,4 @@ class ItemAdapter(private val people: List<Person>) : RecyclerView.Adapter<ItemA
         val descriptionTextView: TextView = itemView.findViewById(R.id.descriptionTextView)
     }
 
-}*/
-
+}
