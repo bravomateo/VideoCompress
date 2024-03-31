@@ -40,7 +40,7 @@ class LoginActivity : AppCompatActivity() {
         buttonLogin.setOnClickListener {
             if (selectedFarm.isNotBlank() && selectedFarm != "No Farm") {
                 // La finca seleccionada no es "No Farm", puedes continuar con la lógica de login
-                val intent = Intent(this, MainActivity::class.java)
+                val intent = Intent(this, LoginSecActivity::class.java)
                 intent.putExtra("selectedFarm", selectedFarm)
                 startActivity(intent)
             } else {

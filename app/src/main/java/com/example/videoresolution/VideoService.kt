@@ -41,6 +41,8 @@ class BlockItem(
     @SerializedName("IS_ACTIVE") val isActive: Boolean,
     @SerializedName("AREA") val area: Double
 )
+
+
 data class FarmResponse(
     @SerializedName("Farms") val farms: List<FarmItem>
 )

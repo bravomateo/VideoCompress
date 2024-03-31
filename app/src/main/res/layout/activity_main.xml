@@ -24,7 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:gravity="center"
-        android:text="Compression Characteristics"
+        android:text="Características de Compresión"
         android:textColor="@color/orange"
         android:textSize="20sp"
         android:textStyle="bold"
@@ -51,7 +51,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:hint="Width"
+            android:hint="Ancho"
             android:inputType="number|numberSigned"
             android:textColor="@color/black" />
 
@@ -61,7 +61,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:hint="Height"
+            android:hint="Alto"
             android:inputType="number|numberSigned"
             android:textColor="@color/black" />
 
@@ -83,7 +83,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:backgroundTint="@color/green"
-        android:text="Select Video"
+        android:text="Selecccionar Video"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -95,7 +95,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
         android:backgroundTint="@color/green"
-        android:text="Sync"
+        android:text="Guardar información"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -103,14 +103,14 @@
 
     <Button
         android:id="@+id/ListVideos"
-        android:layout_width="74dp"
-        android:layout_height="36dp"
-        android:layout_marginTop="4dp"
+        android:layout_width="95dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="36dp"
         android:backgroundTint="@color/green"
-        android:text="List"
+        android:text="Lista"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.907"
+        app:layout_constraintHorizontal_bias="0.741"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/syncButton" />
 
@@ -134,7 +134,7 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:gravity="center"
-            android:hint="Bed"
+            android:hint="Cama"
             android:inputType="number|numberSigned"
             android:textColor="@color/black" />
     </LinearLayout>
@@ -146,7 +146,7 @@
         android:layout_width="150dp"
         android:layout_height="wrap_content"
         android:layout_marginTop="64dp"
-        android:hint="Block"
+        android:hint="Bloque"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewCaracteristicas">

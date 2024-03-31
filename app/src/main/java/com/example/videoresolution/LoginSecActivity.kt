@@ -3,26 +3,27 @@ import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.Room
+import com.example.videoresolution.ApiUtils.getBlocks
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 class LoginSecActivity : AppCompatActivity() {
 
-
     private lateinit var recyclerView: RecyclerView
     private lateinit var itemAdapter: ItemAdapter
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_sec)
 
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
-
 
         val db = Room.databaseBuilder(
             applicationContext,
@@ -31,32 +32,44 @@ class LoginSecActivity : AppCompatActivity() {
 
         val videoDao = db.videoDao()
 
-        // Obtener todos los usuarios y mostrarlos en el Logcat
         lifecycleScope.launch(Dispatchers.IO) {
             val videos = videoDao.getAll()
             Log.d("MainActivityVideos", "Videos: ${videos.toString()}")
-            val videos_ = getListOfItemsFromDatabase() // Obtén la lista de items desde tu base de datos
             itemAdapter = ItemAdapter(videos)
             recyclerView.adapter = itemAdapter
         }
 
 
-        // Configurar el botón flotante para abrir MainActivity sin enviar datos adicionales
-        val fab: FloatingActionButton = findViewById(R.id.floatingActionButton)
-        fab.setOnClickListener {
-            val intent = Intent(this, MainActivity::class.java)
-            startActivity(intent)
+        // Define una variable de lista fuera de las funciones
+        val blocksList = mutableListOf<String>()
+
+        // Llamada a getBlocks desde fabSyncButton y almacenamiento de los bloques en la lista
+        val fabSyncButton: FloatingActionButton = findViewById(R.id.floatingActionButtonSync)
+        fabSyncButton.setOnClickListener {
+            getBlocks(this) { blockNumbers, error ->
+                if (error == null) {
+                    if (blockNumbers != null) {
+                        blocksList.addAll(blockNumbers)
+                    }
+                }
+            }
         }
+
+        val fab: FloatingActionButton = findViewById(R.id.floatingActionButtonAddVideos)
+        fab.setOnClickListener {
+            if (blocksList.isNotEmpty()) {
+                val intent = Intent(this, MainActivity::class.java)
+                intent.putExtra("blocksList", blocksList.toTypedArray())
+                startActivity(intent)
+            } else {
+                showToast("Sincronizars para adicionar un video")
+            }
+        }
+
     }
 
-    // Método de ejemplo para obtener datos desde la base de datos
-    private fun getListOfItemsFromDatabase(): List<Video> {
-        // Aquí deberías usar ROOM para obtener la lista de items desde la base de datos
-        // Por ejemplo, consultando la base de datos y obteniendo los datos a través de un LiveData o un Coroutine
-        return listOf(
-            Video(1, "Example 1: Title", "Description 1"),
-            Video(2, "Example 2: Title", "Description 2"),
-            Video(3, "Example 3: Title", "Description 3")
-        )
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
+
 }

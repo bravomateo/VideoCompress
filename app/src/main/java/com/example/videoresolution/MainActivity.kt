@@ -32,6 +32,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import com.arthenica.mobileffmpeg.FFmpeg
+import com.example.videoresolution.ApiUtils.getBlocks
 import com.google.gson.annotations.SerializedName
 import java.util.Calendar
 import okhttp3.MediaType
@@ -46,8 +47,8 @@ import okhttp3.OkHttpClient
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.UUID
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -61,6 +62,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var selectedFarm: String
     private var selectedOrientationDegrees = 0f
+
+
 
     private fun obtenerFechaYHoraActual(): String {
         val calendario = Calendar.getInstance()
@@ -86,7 +89,6 @@ class MainActivity : AppCompatActivity() {
 
 
 
-
         val selectFileButton: Button = findViewById(R.id.selectFileButton)
         selectFileButton.setOnClickListener {
             checkPermissionsAndOpenFilePicker()
@@ -104,11 +106,11 @@ class MainActivity : AppCompatActivity() {
 
         selectedFarm = intent.getStringExtra("selectedFarm") ?: ""
 
-        val syncButton: Button = findViewById(R.id.syncButton)
-        syncButton.setOnClickListener {
-            // Show block dropdown
-            ApiUtils.getAndSetBlocksDropdown(this, blockDropdown)
-        }
+
+        val blocksList = intent.getStringArrayExtra("blocksList")?.mapNotNull { it }?.toTypedArray() ?: arrayOf()
+        ApiUtils.setBlocksDropdown(this, blockDropdown, blocksList)
+
+
 
         val listVideosButton: Button = findViewById(R.id.ListVideos)
         listVideosButton.setOnClickListener {
@@ -143,6 +145,7 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(intent, REQUEST_VIDEO_CODE)
     }
+
 
     override fun onRequestPermissionsResult(
         requestCode: Int,
@@ -544,7 +547,13 @@ class MainActivity : AppCompatActivity() {
     )
 
     object RetrofitClient {
-        private const val BASE_URL_UPLOAD = "http://192.168.132.45:8000"
+        // Samsung WIFI
+
+        //private const val BASE_URL_UPLOAD = "http://192.168.132.45:8000"
+
+        // Home WIFI
+        private const val BASE_URL_UPLOAD = "http://192.168.58.105:8000"
+
         private const val BASE_URL_GET = "http://10.1.2.22:544"
 
         private val okHttpClient = OkHttpClient.Builder()
