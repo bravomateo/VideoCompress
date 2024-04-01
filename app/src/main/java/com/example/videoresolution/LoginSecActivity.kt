@@ -1,9 +1,13 @@
 package com.example.videoresolution
+import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +21,41 @@ class LoginSecActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var itemAdapter: ItemAdapter
+
+    class MyDialogFragment : DialogFragment() {
+        override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+            return activity?.let {
+                val builder = AlertDialog.Builder(it)
+                val inflater = requireActivity().layoutInflater
+                val view = inflater.inflate(R.layout.dialog_block_status, null)
+
+                val imageViewStatus = view.findViewById<ImageView>(R.id.imageViewStatus)
+
+                builder.setView(view)
+                    .setPositiveButton("Aceptar") { dialog, _ ->
+                        dialog.dismiss()
+                    }
+
+                builder.create()
+            } ?: throw IllegalStateException("Activity cannot be null")
+        }
+
+        override fun onResume() {
+            super.onResume()
+            updateImage(ApiUtils.BlockRequestStatus.LOADING)
+        }
+
+        fun updateImage(status: ApiUtils.BlockRequestStatus) {
+            val imageViewStatus = dialog?.findViewById<ImageView>(R.id.imageViewStatus)
+            imageViewStatus?.setImageResource(
+                when (status) {
+                    ApiUtils.BlockRequestStatus.LOADING -> R.drawable.load
+                    ApiUtils.BlockRequestStatus.SUCCESS -> R.drawable.check
+                    ApiUtils.BlockRequestStatus.ERROR -> R.drawable.error
+                }
+            )
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,17 +82,35 @@ class LoginSecActivity : AppCompatActivity() {
         // Define una variable de lista fuera de las funciones
         val blocksList = mutableListOf<String>()
 
-        // Llamada a getBlocks desde fabSyncButton y almacenamiento de los bloques en la lista
         val fabSyncButton: FloatingActionButton = findViewById(R.id.floatingActionButtonSync)
         fabSyncButton.setOnClickListener {
-            getBlocks(this) { blockNumbers, error ->
-                if (error == null) {
-                    if (blockNumbers != null) {
-                        blocksList.addAll(blockNumbers)
+
+            val dialogFragment = MyDialogFragment()
+            dialogFragment.show(supportFragmentManager, "MyDialogFragment")
+
+            getBlocks(this) { blockNumbers, status ->
+                when (status) {
+                    ApiUtils.BlockRequestStatus.LOADING -> {
+                        Log.d("FabSyncButton", "Estado: CARGANDO")
+                        dialogFragment.updateImage(status)
+                    }
+
+                    ApiUtils.BlockRequestStatus.SUCCESS -> {
+                        Log.d("FabSyncButton", "Estado: ÉXITO")
+                        if (blockNumbers != null) {
+                            blocksList.addAll(blockNumbers)
+                        }
+                        dialogFragment.updateImage(status)
+                    }
+
+                    ApiUtils.BlockRequestStatus.ERROR -> {
+                        Log.d("FabSyncButton", "Estado: ERROR")
+                        dialogFragment.updateImage(status)
                     }
                 }
             }
         }
+
 
         val fab: FloatingActionButton = findViewById(R.id.floatingActionButtonAddVideos)
         fab.setOnClickListener {
@@ -62,7 +119,7 @@ class LoginSecActivity : AppCompatActivity() {
                 intent.putExtra("blocksList", blocksList.toTypedArray())
                 startActivity(intent)
             } else {
-                showToast("Sincronizars para adicionar un video")
+                showToast("Sincronizar para añadir un video")
             }
         }
 

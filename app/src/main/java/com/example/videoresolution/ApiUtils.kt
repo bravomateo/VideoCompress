@@ -89,7 +89,16 @@ object ApiUtils {
     }
 
 
-    fun getBlocks(context: Context, callback: (Array<String>?, String?) -> Unit) {
+    enum class BlockRequestStatus {
+        LOADING,
+        SUCCESS,
+        ERROR
+    }
+
+    fun getBlocks(context: Context, callback: (Array<String>?, BlockRequestStatus) -> Unit) {
+        // Indicar que la petición está en curso
+        callback(null, BlockRequestStatus.LOADING)
+
         val blocksCall = MainActivity.RetrofitClient.instanceForGet.getBlocks()
 
         blocksCall.enqueue(object : Callback<List<BlockItem>> {
@@ -100,20 +109,22 @@ object ApiUtils {
                     if (blocksList != null) {
                         showToast(context, "Bloques obtenidos.")
                         val blockNumbers = blocksList.map { block -> block.blockNumber }.toTypedArray()
-                        callback(blockNumbers, null)
-
+                        callback(blockNumbers, BlockRequestStatus.SUCCESS)
                     }
                 } else {
                     showToast(context, "Error al obtener bloques del servidor. Código: ${response.code()}")
+                    callback(null, BlockRequestStatus.ERROR)
                 }
             }
 
             override fun onFailure(call: Call<List<BlockItem>>, t: Throwable) {
                 showToast(context, "Error en la solicitud de bloques: ${t.message}")
                 Log.e("GetBlocks", "Error en la solicitud al servidor de bloques: ${t.message}", t)
+                callback(null, BlockRequestStatus.ERROR)
             }
         })
     }
+
 
 
 

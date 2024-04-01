@@ -21,7 +21,7 @@ class LoginActivity : AppCompatActivity() {
         selectedFarm = intent.getStringExtra("selectedFarm") ?: ""
 
         farmsLoginDropdown = findViewById(R.id.dropdown_field_farms)
-        val farmsItems = arrayOf("No Farm")
+        val farmsItems = arrayOf("Sin fincas")
         val farmsAdapter =
             ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, farmsItems)
         farmsLoginDropdown.setAdapter(farmsAdapter)
@@ -38,7 +38,7 @@ class LoginActivity : AppCompatActivity() {
 
         val buttonLogin: Button = findViewById(R.id.buttonLogin)
         buttonLogin.setOnClickListener {
-            if (selectedFarm.isNotBlank() && selectedFarm != "No Farm") {
+            if (selectedFarm.isNotBlank() && selectedFarm != "Sin fincas") {
                 // La finca seleccionada no es "No Farm", puedes continuar con la lógica de login
                 val intent = Intent(this, LoginSecActivity::class.java)
                 intent.putExtra("selectedFarm", selectedFarm)
