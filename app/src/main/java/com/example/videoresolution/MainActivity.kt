@@ -65,28 +65,9 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    private fun obtenerFechaYHoraActual(): String {
-        val calendario = Calendar.getInstance()
-        val mes = calendario.get(Calendar.MONTH) + 1
-        val dia = calendario.get(Calendar.DAY_OF_MONTH)
-        val anio = calendario.get(Calendar.YEAR)
-        val hora = calendario.get(Calendar.HOUR_OF_DAY)
-        val minuto = calendario.get(Calendar.MINUTE)
-        val segundo = calendario.get(Calendar.SECOND)
-
-        val mesFormateado = if (mes < 10) "0$mes" else mes.toString()
-        val diaFormateado = if (dia < 10) "0$dia" else dia.toString()
-        val horaFormateada = if (hora < 10) "0$hora" else hora.toString()
-        val minutoFormateado = if (minuto < 10) "0$minuto" else minuto.toString()
-        val segundoFormateado = if (segundo < 10) "0$segundo" else segundo.toString()
-
-        return "$diaFormateado-$mesFormateado-$anio-$horaFormateada-$minutoFormateado-$segundoFormateado"
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
 
 
         val selectFileButton: Button = findViewById(R.id.selectFileButton)
@@ -106,19 +87,14 @@ class MainActivity : AppCompatActivity() {
 
         selectedFarm = intent.getStringExtra("selectedFarm") ?: ""
 
-
         val blocksList = intent.getStringArrayExtra("blocksList")?.mapNotNull { it }?.toTypedArray() ?: arrayOf()
         ApiUtils.setBlocksDropdown(this, blockDropdown, blocksList)
-
-
 
         val listVideosButton: Button = findViewById(R.id.ListVideos)
         listVideosButton.setOnClickListener {
             val intent = Intent(this, LoginSecActivity::class.java)
             startActivity(intent)
         }
-
-
     }
 
     private fun checkPermissionsAndOpenFilePicker() {
@@ -146,7 +122,6 @@ class MainActivity : AppCompatActivity() {
         startActivityForResult(intent, REQUEST_VIDEO_CODE)
     }
 
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -162,7 +137,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private var currentRotationDegrees = 0f // Variable para almacenar el ángulo de rotación actual
+    private var currentRotationDegrees = 0f
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -186,12 +161,7 @@ class MainActivity : AppCompatActivity() {
 
                 val currentDateTime = obtenerFechaYHoraActual()
                 val outputFilePath = File(outputDirectory, "${currentDateTime}.mp4").absolutePath
-
-                progressDialog = ProgressDialog.show(this, "Procesando", "Convirtiendo video...", true, false)
-
-                // Llama directamente a la selección de orientación
                 showFirstFramePreview(selectedVideoUri, originalPath, outputFilePath, width, height, fps)
-
 
             } else {
                 showToast("Ingrese valores válidos para la resolución.")
@@ -230,13 +200,9 @@ class MainActivity : AppCompatActivity() {
         }
 
         acceptButton.setOnClickListener {
-            dialog.dismiss()  // Cerrar el cuadro de diálogo al hacer clic en "Aceptar"
-
-            // Imprimir el valor de selectedOrientationDegrees
+            dialog.dismiss()
             Log.e("SelectedOrientation", "Valor de selectedOrientationDegrees: $selectedOrientationDegrees")
-
             showTrimVideoDialog(videoUri, originalPath, outputFilePath, width, height, fps)
-
         }
 
         dialog.show()
@@ -259,8 +225,6 @@ class MainActivity : AppCompatActivity() {
             .setCancelable(false)
             .create()
 
-
-        // Duracion total del video
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(this, videoUri)
         val durationString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
@@ -268,34 +232,26 @@ class MainActivity : AppCompatActivity() {
 
         videoView.setVideoURI(videoUri)
         videoView.setOnPreparedListener { mp ->
-            // Iniciar la reproducción del video cuando esté preparado
             mp.start()
         }
 
         trimSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                // Actualizar el texto del TextView con el valor actual del progreso de la barra de búsqueda
                 progressTextView.text = "${progress} seg"
                 val valorbuscadoinicial = progress * 1000
                 Log.d("valorbuscado", "Valor buscado inicial: $valorbuscadoinicial")
-                // Mover el video al segundo correspondiente al progreso de la barra de búsqueda
-                videoView.seekTo(valorbuscadoinicial) // El progreso se da en segundos, por lo que se multiplica por 1000 para convertirlo a milisegundos
+                videoView.seekTo(valorbuscadoinicial)
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                // Pausar la reproducción del video cuando se toca la barra de búsqueda
                 videoView.pause()
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                // Reanudar la reproducción del video cuando se suelta la barra de búsqueda
                 videoView.start()
             }
         })
 
-
-
-        // Configurar la segunda barra de búsqueda (final del video)
         trimSeekEndBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 // Actualizar el texto del TextView con el valor actual del progreso de la barra de búsqueda
@@ -309,12 +265,10 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                // Pausar la reproducción del video cuando se toca la barra de búsqueda
                 videoView.pause()
             }
 
             override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                // Reanudar la reproducción del video cuando se suelta la barra de búsqueda
                 videoView.start()
             }
         })
@@ -322,27 +276,38 @@ class MainActivity : AppCompatActivity() {
         acceptButtonTrim.setOnClickListener {
             dialog.dismiss()
 
-
-
-            // Guardar el valor seleccionado en la barra de progreso como startTime
             val startTime = trimSeekBar.progress
             val endTime = durationTime/1000 -trimSeekEndBar.progress
 
-            // Imprimir el valor de endTime en el registro (log)
             Log.d("EndTime", "Valor de endTime: $endTime")
 
-            // Detener la reproducción del video al cerrar el diálogo
             videoView.stopPlayback()
 
 
-            // Iniciar el proceso de conversión de video con el nuevo valor de startTime
+            // Iniciar el proceso de conversión de video
+            /*
             VideoConversionTask(outputFilePath, selectedOrientationDegrees, startTime, endTime).execute(
                 originalPath,
                 outputFilePath,
                 width,
                 height,
                 fps
+            )*/
+
+            val resolution = "$width x $height"
+            val videoName = obtenerFechaYHoraActual()
+            updateInfoROOM( videoName,
+                            resolution,
+
+                            /*outputFilePath,
+                            originalPath,
+                            startTime,
+                            endTime,
+                            width,
+                            height,
+                            fps*/
             )
+
             selectedOrientationDegrees = 0f
         }
 
@@ -354,6 +319,7 @@ class MainActivity : AppCompatActivity() {
         matrix.postRotate(degrees)
         return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
     }
+
 
     private inner class VideoConversionTask(
         private val outputPath: String,
@@ -409,7 +375,7 @@ class MainActivity : AppCompatActivity() {
 
 
         override fun onPostExecute(result: Int) {
-            progressDialog.dismiss()
+            //progressDialog.dismiss()
 
             if (result == 0) {
                 showToast("Video procesado exitosamente")
@@ -425,7 +391,6 @@ class MainActivity : AppCompatActivity() {
 
                 uploadInfoToServer(selectedFarm, selectedBlock, bed, videoName, resolution, fps, id)
 
-                // Subir el video procesado al servidor
                 val processedVideoFile = File(outputPath)
                 uploadVideoToServer(processedVideoFile)
 
@@ -467,20 +432,6 @@ class MainActivity : AppCompatActivity() {
                     if (responseBody != null) {
                         showToast("Información cargada exitosamente.")
 
-                        val db = Room.databaseBuilder(
-                            applicationContext,
-                            AppDatabase::class.java, "database-name"
-                        ).build()
-
-                        val videoDao = db.videoDao()
-
-
-                        // Insertar usuarios en la base de datos
-                        lifecycleScope.launch(Dispatchers.IO) {
-                            val video = Video(null,videoName, resolution)
-                            videoDao.insertAll(video)
-                        }
-
                     } else {
                         showToast("Error cargando información.")
                     }
@@ -495,6 +446,34 @@ class MainActivity : AppCompatActivity() {
         }
         )
     }
+
+    private fun updateInfoROOM(
+                videoName: String,
+                resolution: String,
+                /*
+                outputFilePath: String,
+                originalPath: String,
+                startTime: Int,
+                endTime: Int,
+                width: String,
+                height: String,
+                fps: String*/
+    )
+    {
+        val db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "database-name"
+        ).build()
+
+        val videoDao = db.videoDao()
+
+        // Insertar videos en la base de datos
+        lifecycleScope.launch(Dispatchers.IO) {
+            val video = Video(  null, videoName, resolution)
+            videoDao.insertAll(video)
+        }
+    }
+
 
     data class YourResponseModel(
         @SerializedName("error") val error: Boolean,
@@ -552,7 +531,7 @@ class MainActivity : AppCompatActivity() {
         //private const val BASE_URL_UPLOAD = "http://192.168.132.45:8000"
 
         // Home WIFI
-        private const val BASE_URL_UPLOAD = "http://192.168.58.105:8000"
+        private const val BASE_URL_UPLOAD = "http://192.168.58.104:8000"
 
         private const val BASE_URL_GET = "http://10.1.2.22:544"
 
@@ -580,7 +559,6 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-
     private fun getRealPathFromUri(uri: Uri): String {
         val contentResolver: ContentResolver = contentResolver
         val projection = arrayOf(MediaStore.Images.Media.DATA)
@@ -595,5 +573,24 @@ class MainActivity : AppCompatActivity() {
     private fun showToast(message: String) {
         Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
+
+    private fun obtenerFechaYHoraActual(): String {
+        val calendario = Calendar.getInstance()
+        val mes = calendario.get(Calendar.MONTH) + 1
+        val dia = calendario.get(Calendar.DAY_OF_MONTH)
+        val anio = calendario.get(Calendar.YEAR)
+        val hora = calendario.get(Calendar.HOUR_OF_DAY)
+        val minuto = calendario.get(Calendar.MINUTE)
+        val segundo = calendario.get(Calendar.SECOND)
+
+        val mesFormateado = if (mes < 10) "0$mes" else mes.toString()
+        val diaFormateado = if (dia < 10) "0$dia" else dia.toString()
+        val horaFormateada = if (hora < 10) "0$hora" else hora.toString()
+        val minutoFormateado = if (minuto < 10) "0$minuto" else minuto.toString()
+        val segundoFormateado = if (segundo < 10) "0$segundo" else segundo.toString()
+
+        return "$diaFormateado-$mesFormateado-$anio-$horaFormateada-$minutoFormateado-$segundoFormateado"
+    }
+
 
 }

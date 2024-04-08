@@ -1,10 +1,13 @@
 package com.example.videoresolution
+import ItemAdapter
 import android.app.Dialog
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.ImageView
+import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
@@ -22,14 +25,20 @@ class LoginSecActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var itemAdapter: ItemAdapter
 
+
     class MyDialogFragment : DialogFragment() {
+
+        private lateinit var imageViewStatus: ImageView
+        private lateinit var progressBar: ProgressBar
+
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             return activity?.let {
                 val builder = AlertDialog.Builder(it)
                 val inflater = requireActivity().layoutInflater
                 val view = inflater.inflate(R.layout.dialog_block_status, null)
 
-                val imageViewStatus = view.findViewById<ImageView>(R.id.imageViewStatus)
+                imageViewStatus = view.findViewById(R.id.imageViewStatus)
+                progressBar = view.findViewById(R.id.progressBar)
 
                 builder.setView(view)
                     .setPositiveButton("Aceptar") { dialog, _ ->
@@ -42,20 +51,34 @@ class LoginSecActivity : AppCompatActivity() {
 
         override fun onResume() {
             super.onResume()
-            updateImage(ApiUtils.BlockRequestStatus.LOADING)
+            updateStatus(ApiUtils.BlockRequestStatus.LOADING)
         }
 
-        fun updateImage(status: ApiUtils.BlockRequestStatus) {
+        fun updateStatus(status: ApiUtils.BlockRequestStatus) {
             val imageViewStatus = dialog?.findViewById<ImageView>(R.id.imageViewStatus)
             imageViewStatus?.setImageResource(
                 when (status) {
-                    ApiUtils.BlockRequestStatus.LOADING -> R.drawable.load
-                    ApiUtils.BlockRequestStatus.SUCCESS -> R.drawable.check
-                    ApiUtils.BlockRequestStatus.ERROR -> R.drawable.error
+                    ApiUtils.BlockRequestStatus.LOADING -> {
+                        imageViewStatus.visibility = View.INVISIBLE // Ocultar la imagen
+                        progressBar.visibility = View.VISIBLE // Mostrar la barra de progreso
+                        R.drawable.load // No importa qué imagen se establece aquí, ya que se oculta
+                    }
+                    ApiUtils.BlockRequestStatus.SUCCESS -> {
+                        imageViewStatus.visibility = View.VISIBLE // Mostrar la imagen
+                        progressBar.visibility = View.INVISIBLE // Ocultar la barra de progreso
+                        R.drawable.check
+                    }
+                    ApiUtils.BlockRequestStatus.ERROR -> {
+                        imageViewStatus.visibility = View.VISIBLE // Mostrar la imagen
+                        progressBar.visibility = View.INVISIBLE // Ocultar la barra de progreso
+                        R.drawable.error
+                    }
                 }
             )
         }
+
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -74,8 +97,16 @@ class LoginSecActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             val videos = videoDao.getAll()
             Log.d("MainActivityVideos", "Videos: ${videos.toString()}")
-            itemAdapter = ItemAdapter(videos)
-            recyclerView.adapter = itemAdapter
+
+            runOnUiThread {
+                itemAdapter = ItemAdapter(videos) { position ->
+                    // Manejar el clic en el botón según la posición del elemento
+                    val clickedItem = videos[position]
+                    // Realizar la acción deseada con el elemento, por ejemplo, mostrar un Toast
+                    showToast("Botón presionado en ${clickedItem.nameVideo}")
+                }
+                recyclerView.adapter = itemAdapter
+            }
         }
 
 
@@ -92,7 +123,7 @@ class LoginSecActivity : AppCompatActivity() {
                 when (status) {
                     ApiUtils.BlockRequestStatus.LOADING -> {
                         Log.d("FabSyncButton", "Estado: CARGANDO")
-                        dialogFragment.updateImage(status)
+                        dialogFragment.updateStatus(status)
                     }
 
                     ApiUtils.BlockRequestStatus.SUCCESS -> {
@@ -100,12 +131,12 @@ class LoginSecActivity : AppCompatActivity() {
                         if (blockNumbers != null) {
                             blocksList.addAll(blockNumbers)
                         }
-                        dialogFragment.updateImage(status)
+                        dialogFragment.updateStatus(status)
                     }
 
                     ApiUtils.BlockRequestStatus.ERROR -> {
                         Log.d("FabSyncButton", "Estado: ERROR")
-                        dialogFragment.updateImage(status)
+                        dialogFragment.updateStatus(status)
                     }
                 }
             }
