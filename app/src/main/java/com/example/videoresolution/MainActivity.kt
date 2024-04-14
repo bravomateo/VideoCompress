@@ -32,7 +32,6 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import com.arthenica.mobileffmpeg.FFmpeg
-import com.example.videoresolution.ApiUtils.getBlocks
 import com.google.gson.annotations.SerializedName
 import java.util.Calendar
 import okhttp3.MediaType
@@ -96,7 +95,6 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
-
     private fun checkPermissionsAndOpenFilePicker() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(
@@ -116,12 +114,10 @@ class MainActivity : AppCompatActivity() {
             openFilePicker()
         }
     }
-
     private fun openFilePicker() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(intent, REQUEST_VIDEO_CODE)
     }
-
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
@@ -207,6 +203,11 @@ class MainActivity : AppCompatActivity() {
 
         dialog.show()
     }
+    private fun rotateBitmap(source: Bitmap, degrees: Float): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(degrees)
+        return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
+    }
 
     private fun showTrimVideoDialog(videoUri: Uri, originalPath: String, outputFilePath: String, width: String, height: String, fps: String) {
         val dialogView = layoutInflater.inflate(R.layout.trip_video, null)
@@ -239,7 +240,6 @@ class MainActivity : AppCompatActivity() {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 progressTextView.text = "${progress} seg"
                 val valorbuscadoinicial = progress * 1000
-                Log.d("valorbuscado", "Valor buscado inicial: $valorbuscadoinicial")
                 videoView.seekTo(valorbuscadoinicial)
             }
 
@@ -284,9 +284,17 @@ class MainActivity : AppCompatActivity() {
             videoView.stopPlayback()
 
 
-            // Iniciar el proceso de conversión de video
+
+            VideoConversionTask(outputFilePath, startTime, endTime).execute(
+                originalPath,
+                outputFilePath,
+                width,
+                height,
+                fps
+            )
+
             /*
-            VideoConversionTask(outputFilePath, selectedOrientationDegrees, startTime, endTime).execute(
+            VideoUtils.VideoConversionTaskClass(this,outputFilePath,startTime,startTime).execute(
                 originalPath,
                 outputFilePath,
                 width,
@@ -294,36 +302,29 @@ class MainActivity : AppCompatActivity() {
                 fps
             )*/
 
+            selectedOrientationDegrees = 0f
+
+
             val resolution = "$width x $height"
             val videoName = obtenerFechaYHoraActual()
             updateInfoROOM( videoName,
                             resolution,
-
-                            /*outputFilePath,
+                            outputFilePath,
                             originalPath,
                             startTime,
                             endTime,
                             width,
                             height,
-                            fps*/
+                            fps
             )
 
-            selectedOrientationDegrees = 0f
         }
 
         dialog.show()
     }
 
-    private fun rotateBitmap(source: Bitmap, degrees: Float): Bitmap {
-        val matrix = Matrix()
-        matrix.postRotate(degrees)
-        return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
-    }
-
-
-    private inner class VideoConversionTask(
+    inner class VideoConversionTask(
         private val outputPath: String,
-        private val orientationDegrees: Float,
         private val startTime: Int,
         private val endTime: Int
     ) : AsyncTask<String, Void, Int>() {
@@ -337,8 +338,8 @@ class MainActivity : AppCompatActivity() {
             val tempOutputPath = getTempFilePath()
             val frameReductionCommand = arrayOf(
                 "-i", inputPath,
-                "-ss", startTime.toString(), // tiempo inicial en segundos
-                "-t", (endTime - startTime).toString(), // duración del recorte en segundos
+                "-ss", startTime.toString(),
+                "-t", (endTime - startTime).toString(),
                 "-r", fps,
                 tempOutputPath
             )
@@ -347,7 +348,7 @@ class MainActivity : AppCompatActivity() {
             if (frameReductionResult != 0) {
                 return frameReductionResult
             }
-
+            val orientationDegrees = 0.0f
 
             val rotatedTempOutputPath = getTempFilePath()
             val rotationCommand = when (orientationDegrees) {
@@ -372,7 +373,6 @@ class MainActivity : AppCompatActivity() {
             )
             return FFmpeg.execute(resolutionReductionCommand)
         }
-
 
         override fun onPostExecute(result: Int) {
             //progressDialog.dismiss()
@@ -406,7 +406,9 @@ class MainActivity : AppCompatActivity() {
             val currentDateTime = obtenerFechaYHoraActual()
             return File(outputDirectory, "${currentDateTime}_temp.mp4").absolutePath
         }
+
     }
+
 
 
     private fun uploadInfoToServer(
@@ -447,49 +449,6 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
-    private fun updateInfoROOM(
-                videoName: String,
-                resolution: String,
-                /*
-                outputFilePath: String,
-                originalPath: String,
-                startTime: Int,
-                endTime: Int,
-                width: String,
-                height: String,
-                fps: String*/
-    )
-    {
-        val db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "database-name"
-        ).build()
-
-        val videoDao = db.videoDao()
-
-        // Insertar videos en la base de datos
-        lifecycleScope.launch(Dispatchers.IO) {
-            val video = Video(  null, videoName, resolution)
-            videoDao.insertAll(video)
-        }
-    }
-
-
-    data class YourResponseModel(
-        @SerializedName("error") val error: Boolean,
-        @SerializedName("message") val messages: List<Message>
-    )
-    data class Message(
-        @SerializedName("farm") val farm: String,
-        @SerializedName("block") val block: String,
-        @SerializedName("bed") val bed: String,
-        @SerializedName("video_name") val videoName: String,
-        @SerializedName("resolution") val resolution: String,
-        @SerializedName("FPS") val fps: String,
-        @SerializedName("ID") val id: String
-    )
-
-
     private fun uploadVideoToServer(videoFile: File) {
         val videoService = RetrofitClient.instance
 
@@ -516,6 +475,66 @@ class MainActivity : AppCompatActivity() {
         }
         )
     }
+    private fun obtenerFechaYHoraActual(): String {
+        val calendario = Calendar.getInstance()
+        val mes = calendario.get(Calendar.MONTH) + 1
+        val dia = calendario.get(Calendar.DAY_OF_MONTH)
+        val anio = calendario.get(Calendar.YEAR)
+        val hora = calendario.get(Calendar.HOUR_OF_DAY)
+        val minuto = calendario.get(Calendar.MINUTE)
+        val segundo = calendario.get(Calendar.SECOND)
+
+        val mesFormateado = if (mes < 10) "0$mes" else mes.toString()
+        val diaFormateado = if (dia < 10) "0$dia" else dia.toString()
+        val horaFormateada = if (hora < 10) "0$hora" else hora.toString()
+        val minutoFormateado = if (minuto < 10) "0$minuto" else minuto.toString()
+        val segundoFormateado = if (segundo < 10) "0$segundo" else segundo.toString()
+
+        return "$diaFormateado-$mesFormateado-$anio-$horaFormateada-$minutoFormateado-$segundoFormateado"
+    }
+    private fun showToast(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    }
+
+    private fun getRealPathFromUri(uri: Uri): String {
+        val contentResolver: ContentResolver = contentResolver
+        val projection = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor = contentResolver.query(uri, projection, null, null, null)
+        val columnIndex = cursor?.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+        cursor?.moveToFirst()
+        val path = columnIndex?.let { cursor.getString(it) } ?: ""
+        cursor?.close()
+        return path
+    }
+
+
+
+    private fun updateInfoROOM(
+        videoName: String,
+        resolution: String,
+        outputFilePath: String,
+        originalPath: String,
+        startTime: Int,
+        endTime: Int,
+        width: String,
+        height: String,
+        fps: String
+    )
+    {
+        val db = Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java, "database-name"
+        ).build()
+
+        val videoDao = db.videoDao()
+
+        // Insertar videos en la base de datos local
+        lifecycleScope.launch(Dispatchers.IO) {
+            val video = Video(  null, videoName, resolution, outputFilePath, originalPath, startTime, endTime, width, height, fps)
+            videoDao.insertAll(video)
+        }
+    }
+
 
     data class YourResponseModelVideo(
         @SerializedName("error") val error: Boolean,
@@ -524,14 +543,26 @@ class MainActivity : AppCompatActivity() {
     data class MessageVideo(
         @SerializedName("filename") val filename: String
     )
-
+    data class YourResponseModel(
+        @SerializedName("error") val error: Boolean,
+        @SerializedName("message") val messages: List<Message>
+    )
+    data class Message(
+        @SerializedName("farm") val farm: String,
+        @SerializedName("block") val block: String,
+        @SerializedName("bed") val bed: String,
+        @SerializedName("video_name") val videoName: String,
+        @SerializedName("resolution") val resolution: String,
+        @SerializedName("FPS") val fps: String,
+        @SerializedName("ID") val id: String
+    )
     object RetrofitClient {
         // Samsung WIFI
 
         //private const val BASE_URL_UPLOAD = "http://192.168.132.45:8000"
 
         // Home WIFI
-        private const val BASE_URL_UPLOAD = "http://192.168.58.104:8000"
+        private const val BASE_URL_UPLOAD = "http://192.168.58.106:8000"
 
         private const val BASE_URL_GET = "http://10.1.2.22:544"
 
@@ -558,39 +589,5 @@ class MainActivity : AppCompatActivity() {
             retrofit.create(VideoService::class.java)
         }
     }
-
-    private fun getRealPathFromUri(uri: Uri): String {
-        val contentResolver: ContentResolver = contentResolver
-        val projection = arrayOf(MediaStore.Images.Media.DATA)
-        val cursor = contentResolver.query(uri, projection, null, null, null)
-        val columnIndex = cursor?.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-        cursor?.moveToFirst()
-        val path = columnIndex?.let { cursor.getString(it) } ?: ""
-        cursor?.close()
-        return path
-    }
-
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
-    }
-
-    private fun obtenerFechaYHoraActual(): String {
-        val calendario = Calendar.getInstance()
-        val mes = calendario.get(Calendar.MONTH) + 1
-        val dia = calendario.get(Calendar.DAY_OF_MONTH)
-        val anio = calendario.get(Calendar.YEAR)
-        val hora = calendario.get(Calendar.HOUR_OF_DAY)
-        val minuto = calendario.get(Calendar.MINUTE)
-        val segundo = calendario.get(Calendar.SECOND)
-
-        val mesFormateado = if (mes < 10) "0$mes" else mes.toString()
-        val diaFormateado = if (dia < 10) "0$dia" else dia.toString()
-        val horaFormateada = if (hora < 10) "0$hora" else hora.toString()
-        val minutoFormateado = if (minuto < 10) "0$minuto" else minuto.toString()
-        val segundoFormateado = if (segundo < 10) "0$segundo" else segundo.toString()
-
-        return "$diaFormateado-$mesFormateado-$anio-$horaFormateada-$minutoFormateado-$segundoFormateado"
-    }
-
 
 }

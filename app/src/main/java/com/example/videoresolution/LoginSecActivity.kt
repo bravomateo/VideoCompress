@@ -100,17 +100,26 @@ class LoginSecActivity : AppCompatActivity() {
 
             runOnUiThread {
                 itemAdapter = ItemAdapter(videos) { position ->
-                    // Manejar el clic en el botón según la posición del elemento
                     val clickedItem = videos[position]
-                    // Realizar la acción deseada con el elemento, por ejemplo, mostrar un Toast
-                    showToast("Botón presionado en ${clickedItem.nameVideo}")
+                    showToast("Subiendo el video: ${clickedItem.nameVideo}")
+                    Log.d("VideoAttributes", "uid:              ${clickedItem.uid}")
+                    Log.d("VideoAttributes", "nameVideo:        ${clickedItem.nameVideo}")
+                    Log.d("VideoAttributes", "resolutionVideo:  ${clickedItem.resolutionVideo}")
+                    Log.d("VideoAttributes", "outputFilePath:   ${clickedItem.outputFilePath}")
+                    Log.d("VideoAttributes", "originalPath:     ${clickedItem.originalPath}")
+                    Log.d("VideoAttributes", "startTime:        ${clickedItem.startTime}")
+                    Log.d("VideoAttributes", "endTime:          ${clickedItem.endTime}")
+                    Log.d("VideoAttributes", "width:            ${clickedItem.width}")
+                    Log.d("VideoAttributes", "height:           ${clickedItem.height}")
+                    Log.d("VideoAttributes", "fps:              ${clickedItem.fps}"
+
+                    )
                 }
                 recyclerView.adapter = itemAdapter
             }
         }
 
 
-        // Define una variable de lista fuera de las funciones
         val blocksList = mutableListOf<String>()
 
         val fabSyncButton: FloatingActionButton = findViewById(R.id.floatingActionButtonSync)
@@ -153,7 +162,6 @@ class LoginSecActivity : AppCompatActivity() {
                 showToast("Sincronizar para añadir un video")
             }
         }
-
     }
 
     private fun showToast(message: String) {
