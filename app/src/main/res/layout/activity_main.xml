@@ -101,18 +101,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/selectFileButton" />
 
-    <Button
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/ListVideos"
-        android:layout_width="95dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="36dp"
-        android:backgroundTint="@color/green"
-        android:text="Lista"
-        android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.741"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="256dp"
+        android:layout_marginTop="628dp"
+        android:contentDescription="Description"
+        android:scaleType="center"
+        android:src="@drawable/back"
+        app:backgroundTint="@color/green"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/syncButton" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:maxImageSize="48dp"
+        app:tint="@color/white" />
 
     <LinearLayout
         android:id="@+id/bedAndFarmLayout"

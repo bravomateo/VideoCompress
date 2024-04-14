@@ -3,6 +3,7 @@ package com.example.videoresolution
 import android.Manifest
 import android.app.ProgressDialog
 import android.content.ContentResolver
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -20,6 +21,7 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.SeekBar
 import android.widget.TextView
@@ -89,7 +91,7 @@ class MainActivity : AppCompatActivity() {
         val blocksList = intent.getStringArrayExtra("blocksList")?.mapNotNull { it }?.toTypedArray() ?: arrayOf()
         ApiUtils.setBlocksDropdown(this, blockDropdown, blocksList)
 
-        val listVideosButton: Button = findViewById(R.id.ListVideos)
+        val listVideosButton: ImageButton = findViewById(R.id.ListVideos)
         listVideosButton.setOnClickListener {
             val intent = Intent(this, LoginSecActivity::class.java)
             startActivity(intent)
@@ -283,18 +285,11 @@ class MainActivity : AppCompatActivity() {
 
             videoView.stopPlayback()
 
+            showToast("Video guardado exitosamente")
 
-
-            VideoConversionTask(outputFilePath, startTime, endTime).execute(
-                originalPath,
-                outputFilePath,
-                width,
-                height,
-                fps
-            )
 
             /*
-            VideoUtils.VideoConversionTaskClass(this,outputFilePath,startTime,startTime).execute(
+            VideoUtils.VideoConversionTaskClass(this, outputFilePath, startTime, endTime).execute(
                 originalPath,
                 outputFilePath,
                 width,
@@ -322,93 +317,6 @@ class MainActivity : AppCompatActivity() {
 
         dialog.show()
     }
-
-    inner class VideoConversionTask(
-        private val outputPath: String,
-        private val startTime: Int,
-        private val endTime: Int
-    ) : AsyncTask<String, Void, Int>() {
-
-        override fun doInBackground(vararg params: String?): Int {
-            val inputPath = params[0] ?: ""
-            val width = params[2] ?: ""
-            val height = params[3] ?: ""
-            val fps = params[4] ?: ""
-
-            val tempOutputPath = getTempFilePath()
-            val frameReductionCommand = arrayOf(
-                "-i", inputPath,
-                "-ss", startTime.toString(),
-                "-t", (endTime - startTime).toString(),
-                "-r", fps,
-                tempOutputPath
-            )
-
-            val frameReductionResult = FFmpeg.execute(frameReductionCommand)
-            if (frameReductionResult != 0) {
-                return frameReductionResult
-            }
-            val orientationDegrees = 0.0f
-
-            val rotatedTempOutputPath = getTempFilePath()
-            val rotationCommand = when (orientationDegrees) {
-                90.0f  -> arrayOf("-i", tempOutputPath, "-vf", "transpose=3", rotatedTempOutputPath)
-                180.0f -> arrayOf("-i", tempOutputPath, "-vf", "transpose=2,transpose=2", rotatedTempOutputPath)
-                270.0f -> arrayOf("-i", tempOutputPath, "-vf", "transpose=2", rotatedTempOutputPath)
-                0.0f   -> arrayOf("-i", tempOutputPath,  rotatedTempOutputPath)
-                else   -> arrayOf("-i", tempOutputPath, "-vf", rotatedTempOutputPath)
-            }
-
-            val rotationResult = FFmpeg.execute(rotationCommand)
-            if (rotationResult != 0) {
-                return rotationResult
-            }
-
-            val resolutionReductionCommand = arrayOf(
-                "-i", rotatedTempOutputPath, // Use the rotated video
-                "-vf", "scale=$width:$height",
-                "-b:v", "10K",
-                "-an",
-                outputPath
-            )
-            return FFmpeg.execute(resolutionReductionCommand)
-        }
-
-        override fun onPostExecute(result: Int) {
-            //progressDialog.dismiss()
-
-            if (result == 0) {
-                showToast("Video procesado exitosamente")
-
-                val bed = findViewById<EditText>(R.id.editTextBed).text.toString()
-                val width = findViewById<EditText>(R.id.editTextWidth).text.toString()
-                val height = findViewById<EditText>(R.id.editTextHeight).text.toString()
-                val resolution = "$width x $height"
-                val fps = findViewById<EditText>(R.id.editTextFPS).text.toString()
-
-                val id = UUID.randomUUID().toString()
-                val videoName = obtenerFechaYHoraActual()
-
-                uploadInfoToServer(selectedFarm, selectedBlock, bed, videoName, resolution, fps, id)
-
-                val processedVideoFile = File(outputPath)
-                uploadVideoToServer(processedVideoFile)
-
-
-            } else {
-                showToast("Error al procesar el video")
-            }
-        }
-
-        private fun getTempFilePath(): String {
-            val outputDirectory = File(cacheDir, "Temp")
-            outputDirectory.mkdirs()
-            val currentDateTime = obtenerFechaYHoraActual()
-            return File(outputDirectory, "${currentDateTime}_temp.mp4").absolutePath
-        }
-
-    }
-
 
 
     private fun uploadInfoToServer(
@@ -475,6 +383,7 @@ class MainActivity : AppCompatActivity() {
         }
         )
     }
+
     private fun obtenerFechaYHoraActual(): String {
         val calendario = Calendar.getInstance()
         val mes = calendario.get(Calendar.MONTH) + 1
@@ -528,7 +437,6 @@ class MainActivity : AppCompatActivity() {
 
         val videoDao = db.videoDao()
 
-        // Insertar videos en la base de datos local
         lifecycleScope.launch(Dispatchers.IO) {
             val video = Video(  null, videoName, resolution, outputFilePath, originalPath, startTime, endTime, width, height, fps)
             videoDao.insertAll(video)

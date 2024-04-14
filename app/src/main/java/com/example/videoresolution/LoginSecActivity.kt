@@ -102,18 +102,25 @@ class LoginSecActivity : AppCompatActivity() {
                 itemAdapter = ItemAdapter(videos) { position ->
                     val clickedItem = videos[position]
                     showToast("Subiendo el video: ${clickedItem.nameVideo}")
-                    Log.d("VideoAttributes", "uid:              ${clickedItem.uid}")
-                    Log.d("VideoAttributes", "nameVideo:        ${clickedItem.nameVideo}")
-                    Log.d("VideoAttributes", "resolutionVideo:  ${clickedItem.resolutionVideo}")
-                    Log.d("VideoAttributes", "outputFilePath:   ${clickedItem.outputFilePath}")
-                    Log.d("VideoAttributes", "originalPath:     ${clickedItem.originalPath}")
-                    Log.d("VideoAttributes", "startTime:        ${clickedItem.startTime}")
-                    Log.d("VideoAttributes", "endTime:          ${clickedItem.endTime}")
-                    Log.d("VideoAttributes", "width:            ${clickedItem.width}")
-                    Log.d("VideoAttributes", "height:           ${clickedItem.height}")
-                    Log.d("VideoAttributes", "fps:              ${clickedItem.fps}"
 
+                    val outputFilePath: String = clickedItem.outputFilePath!!
+                    val startTime: Int = clickedItem.startTime!!
+                    val endTime: Int = clickedItem.endTime!!
+                    val originalPath: String = clickedItem.originalPath!!
+                    val width: String = clickedItem.width!!
+                    val height: String = clickedItem.height!!
+                    val fps: String = clickedItem.fps!!
+
+
+                    VideoUtils.VideoConversionTaskClass(applicationContext, outputFilePath, startTime, endTime).execute(
+                        originalPath,
+                        outputFilePath,
+                        width,
+                        height,
+                        fps
                     )
+
+
                 }
                 recyclerView.adapter = itemAdapter
             }
