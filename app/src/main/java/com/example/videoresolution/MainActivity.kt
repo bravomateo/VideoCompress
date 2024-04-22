@@ -56,7 +56,7 @@ class MainActivity : AppCompatActivity() {
 
     private val REQUEST_PERMISSION_CODE = 123
     private val REQUEST_VIDEO_CODE = 456
-    private lateinit var progressDialog: ProgressDialog
+
 
     private lateinit var blockDropdown: AutoCompleteTextView
     private lateinit var selectedBlock: String
@@ -86,7 +86,10 @@ class MainActivity : AppCompatActivity() {
             selectedBlock = blockDropdown.adapter.getItem(position).toString()
         }
 
-        selectedFarm = intent.getStringExtra("selectedFarm") ?: ""
+        selectedFarm = "BC"
+
+        Log.d("FarmMain", "Selected farm: $selectedFarm")
+
 
         val blocksList = intent.getStringArrayExtra("blocksList")?.mapNotNull { it }?.toTypedArray() ?: arrayOf()
         ApiUtils.setBlocksDropdown(this, blockDropdown, blocksList)
@@ -146,6 +149,7 @@ class MainActivity : AppCompatActivity() {
             val width = findViewById<EditText>(R.id.editTextWidth).text.toString()
             val height = findViewById<EditText>(R.id.editTextHeight).text.toString()
             val fps = findViewById<EditText>(R.id.editTextFPS).text.toString()
+            val bed = findViewById<EditText>(R.id.editTextBed).text.toString()
 
             if (width.isNotEmpty() && height.isNotEmpty() && fps.isNotEmpty()) {
 
@@ -157,9 +161,10 @@ class MainActivity : AppCompatActivity() {
                     )
                 outputDirectory.mkdirs()
 
+
                 val currentDateTime = obtenerFechaYHoraActual()
                 val outputFilePath = File(outputDirectory, "${currentDateTime}.mp4").absolutePath
-                showFirstFramePreview(selectedVideoUri, originalPath, outputFilePath, width, height, fps)
+                showFirstFramePreview(selectedVideoUri, originalPath, outputFilePath, width, height, fps, selectedFarm, block, bed)
 
             } else {
                 showToast("Ingrese valores válidos para la resolución.")
@@ -170,7 +175,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun showFirstFramePreview(videoUri: Uri, originalPath: String, outputFilePath: String, width: String, height: String, fps: String) {
+    private fun showFirstFramePreview(videoUri: Uri, originalPath: String, outputFilePath: String, width: String, height: String, fps: String, farm: String, block: String, bed: String) {
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(this, videoUri)
         val timeMicros = 0L
@@ -200,7 +205,7 @@ class MainActivity : AppCompatActivity() {
         acceptButton.setOnClickListener {
             dialog.dismiss()
             Log.e("SelectedOrientation", "Valor de selectedOrientationDegrees: $selectedOrientationDegrees")
-            showTrimVideoDialog(videoUri, originalPath, outputFilePath, width, height, fps)
+            showTrimVideoDialog(videoUri, originalPath, outputFilePath, width, height, fps, farm, block, bed)
         }
 
         dialog.show()
@@ -211,7 +216,7 @@ class MainActivity : AppCompatActivity() {
         return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
     }
 
-    private fun showTrimVideoDialog(videoUri: Uri, originalPath: String, outputFilePath: String, width: String, height: String, fps: String) {
+    private fun showTrimVideoDialog(videoUri: Uri, originalPath: String, outputFilePath: String, width: String, height: String, fps: String, farm: String, block: String, bed: String) {
         val dialogView = layoutInflater.inflate(R.layout.trip_video, null)
         val acceptButtonTrim = dialogView.findViewById<Button>(R.id.acceptButtonTrim)
 
@@ -287,17 +292,8 @@ class MainActivity : AppCompatActivity() {
 
             showToast("Video guardado exitosamente")
 
-
-            /*
-            VideoUtils.VideoConversionTaskClass(this, outputFilePath, startTime, endTime).execute(
-                originalPath,
-                outputFilePath,
-                width,
-                height,
-                fps
-            )*/
-
             selectedOrientationDegrees = 0f
+
 
 
             val resolution = "$width x $height"
@@ -310,14 +306,16 @@ class MainActivity : AppCompatActivity() {
                             endTime,
                             width,
                             height,
-                            fps
+                            fps,
+                            farm,
+                            block,
+                            bed
             )
 
         }
 
         dialog.show()
     }
-
 
     private fun obtenerFechaYHoraActual(): String {
         val calendario = Calendar.getInstance()
@@ -351,8 +349,6 @@ class MainActivity : AppCompatActivity() {
         return path
     }
 
-
-
     private fun updateInfoROOM(
         videoName: String,
         resolution: String,
@@ -362,7 +358,10 @@ class MainActivity : AppCompatActivity() {
         endTime: Int,
         width: String,
         height: String,
-        fps: String
+        fps: String,
+        farm: String,
+        block: String,
+        bed: String
     )
     {
         val db = Room.databaseBuilder(
@@ -373,7 +372,7 @@ class MainActivity : AppCompatActivity() {
         val videoDao = db.videoDao()
 
         lifecycleScope.launch(Dispatchers.IO) {
-            val video = Video(  null, videoName, resolution, outputFilePath, originalPath, startTime, endTime, width, height, fps)
+            val video = Video(  null, videoName, resolution, outputFilePath, originalPath, startTime, endTime, width, height, fps, farm, block, bed)
             videoDao.insertAll(video)
         }
     }

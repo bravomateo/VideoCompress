@@ -20,10 +20,12 @@ import java.util.UUID
 
 object VideoUtils {
 
-    // Define un LiveData para representar el estado de la subida del video
-    private val _uploadStatus = MutableLiveData<Boolean>()
-    val uploadStatus: LiveData<Boolean> = _uploadStatus
 
+    private val uploadVideoResultLiveData: MutableLiveData<Boolean> = MutableLiveData()
+
+    fun getUploadVideoResultLiveData(): LiveData<Boolean> {
+        return uploadVideoResultLiveData
+    }
     class VideoConversionTaskClass(
         private val context: Context,
         private val outputPath: String,
@@ -32,8 +34,6 @@ object VideoUtils {
     ) : AsyncTask<String, Void, Int>() {
 
 
-        private var isUploadSuccess = false
-        private var isUploadFailed = false
         override fun doInBackground(vararg params: String?): Int {
             val inputPath = params[0] ?: ""
             val width = params[2] ?: ""
@@ -100,9 +100,8 @@ object VideoUtils {
                 val processedVideoFile = File(outputPath)
                 uploadVideoToServer(processedVideoFile)
 
-
             } else {
-                _uploadStatus.postValue(false) // Subida del video fallida
+                uploadVideoResultLiveData.postValue(false)
             }
         }
         private fun getTempFilePath(context: Context): String {
@@ -179,18 +178,18 @@ object VideoUtils {
                     if (response.isSuccessful) {
                         val responseBody = response.body()
                         showToast(context,"Video subido exitosamente al servidor.")
-                        _uploadStatus.postValue(true)
+                        uploadVideoResultLiveData.postValue(true)
                     }
                     else {
-                        _uploadStatus.postValue(false)
                         showToast(context,"Error al subir el video al servidor.")
+                        uploadVideoResultLiveData.postValue(false)
                     }
                 }
 
                 override fun onFailure(call: Call<MainActivity.YourResponseModelVideo>, t: Throwable) {
-                    _uploadStatus.postValue(false)
                     showToast(context,"Error en la solicitud al servidor: ${t.message}")
                     Log.e("UploadVideo", "Error en la solicitud al servidor: ${t.message}", t)
+                    uploadVideoResultLiveData.postValue(false)
                 }
             }
 

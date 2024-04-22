@@ -15,6 +15,10 @@ data class Video(
     @ColumnInfo(name = "end_time") val endTime: Int?,
     @ColumnInfo(name = "width") val width: String?,
     @ColumnInfo(name = "height") val height: String?,
-    @ColumnInfo(name = "fps") val fps: String?
+    @ColumnInfo(name = "fps") val fps: String?,
+    @ColumnInfo(name = "farm") val farm: String?,
+    @ColumnInfo(name = "block") val block: String?,
+    @ColumnInfo(name = "bed") val bed: String?
+
 
 )

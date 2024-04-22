@@ -39,12 +39,10 @@ class LoginActivity : AppCompatActivity() {
         val buttonLogin: Button = findViewById(R.id.buttonLogin)
         buttonLogin.setOnClickListener {
             if (selectedFarm.isNotBlank() && selectedFarm != "Sin fincas") {
-                // La finca seleccionada no es "No Farm", puedes continuar con la lógica de login
                 val intent = Intent(this, LoginSecActivity::class.java)
                 intent.putExtra("selectedFarm", selectedFarm)
                 startActivity(intent)
             } else {
-                // La finca seleccionada es "No Farm", muestra un Toast
                 showToast("Sincronizar y seleccionar una finca válida")
             }
         }
