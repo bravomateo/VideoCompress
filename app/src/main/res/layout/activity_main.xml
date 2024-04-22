@@ -10,7 +10,7 @@
 
     <ImageView
         android:id="@+id/imageViewCapiro"
-        android:layout_width="263dp"
+        android:layout_width="290dp"
         android:layout_height="59dp"
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,8 +34,8 @@
 
     <LinearLayout
         android:id="@+id/editTextLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_width="322dp"
+        android:layout_height="94dp"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
@@ -45,35 +45,55 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bedAndFarmLayout">
 
-        <EditText
-            android:id="@+id/editTextWidth"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="center"
-            android:hint="Ancho"
-            android:inputType="number|numberSigned"
-            android:textColor="@color/black" />
+            android:layout_marginEnd="8dp"
+            android:hint="Ancho">
 
-        <EditText
-            android:id="@+id/editTextHeight"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:hint="Alto"
-            android:inputType="number|numberSigned"
-            android:textColor="@color/black" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextWidth"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:inputType="number|numberSigned"
+                android:textColor="@color/black" />
 
-        <EditText
-            android:id="@+id/editTextFPS"
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="center"
-            android:hint="FPS"
-            android:inputType="number|numberSigned"
-            android:textColor="@color/black" />
+            android:layout_marginEnd="8dp"
+            android:hint="Alto">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextHeight"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:inputType="number|numberSigned"
+                android:textColor="@color/black" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:hint="FPS">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextFPS"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:inputType="number|numberSigned"
+                android:textColor="@color/black" />
+
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 
 
@@ -159,6 +179,22 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="none"/>
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="113dp"
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteX="297dp"
+        tools:layout_editor_absoluteY="582dp">
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="124dp"
+        android:layout_height="wrap_content"
+        tools:layout_editor_absoluteX="286dp"
+        tools:layout_editor_absoluteY="347dp">
 
     </com.google.android.material.textfield.TextInputLayout>
 

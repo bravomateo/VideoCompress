@@ -111,15 +111,8 @@ class LoginSecActivity : AppCompatActivity() {
                     val height: String = clickedItem.height!!
                     val fps: String = clickedItem.fps!!
 
-
-                    VideoUtils.VideoConversionTaskClass(applicationContext, outputFilePath, startTime, endTime).execute(
-                        originalPath,
-                        outputFilePath,
-                        width,
-                        height,
-                        fps
-                    )
-
+                    // Llama a uploadVideo en el ItemAdapter
+                    itemAdapter.uploadVideo(position, applicationContext, outputFilePath, startTime, endTime, originalPath, width, height, fps)
 
                 }
                 recyclerView.adapter = itemAdapter

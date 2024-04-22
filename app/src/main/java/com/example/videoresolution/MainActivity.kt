@@ -319,71 +319,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun uploadInfoToServer(
-        farm: String,
-        block: String,
-        bed: String,
-        videoName: String,
-        resolution: String,
-        fps: String,
-        id: String
-    ) {
-        val videoService = RetrofitClient.instance
-
-        val call = videoService.uploadInfo(farm, block, bed, videoName, resolution, fps, id)
-
-        call.enqueue(object : Callback<YourResponseModel> {
-            override fun onResponse(
-                call: Call<YourResponseModel>,
-                response: Response<YourResponseModel>
-            ) {
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    if (responseBody != null) {
-                        showToast("Información cargada exitosamente.")
-
-                    } else {
-                        showToast("Error cargando información.")
-                    }
-                }
-            }
-
-            override fun onFailure(call: Call<YourResponseModel>, t: Throwable) {
-                showToast("Error en la solicitud del servidor: ${t.message}")
-                Log.e("UploadInfo", "Error en la solicitud del servidor: ${t.message}", t)
-            }
-
-        }
-        )
-    }
-
-    private fun uploadVideoToServer(videoFile: File) {
-        val videoService = RetrofitClient.instance
-
-        val requestFile = RequestBody.create(MediaType.parse("multipart/form-data"), videoFile)
-
-        val videoPart = MultipartBody.Part.createFormData("video", videoFile.name, requestFile)
-
-        val call = videoService.uploadVideo(videoPart)
-
-        call.enqueue(object : Callback<YourResponseModelVideo> {
-            override fun onResponse(call: Call<YourResponseModelVideo>, response: Response<YourResponseModelVideo>) {
-                if (response.isSuccessful) {
-                    val responseBody = response.body()
-                    showToast("Video subido exitosamente al servidor.")
-                } else {
-                    showToast("Error al subir el video al servidor.")
-                }
-            }
-
-            override fun onFailure(call: Call<YourResponseModelVideo>, t: Throwable) {
-                showToast("Error en la solicitud al servidor: ${t.message}")
-                Log.e("UploadVideo", "Error en la solicitud al servidor: ${t.message}", t)
-            }
-        }
-        )
-    }
-
     private fun obtenerFechaYHoraActual(): String {
         val calendario = Calendar.getInstance()
         val mes = calendario.get(Calendar.MONTH) + 1
@@ -467,10 +402,10 @@ class MainActivity : AppCompatActivity() {
     object RetrofitClient {
         // Samsung WIFI
 
-        //private const val BASE_URL_UPLOAD = "http://192.168.132.45:8000"
+        //private const val BASE_URL_UPLOAD = "http://192.168.21.45:8000"
 
         // Home WIFI
-        private const val BASE_URL_UPLOAD = "http://192.168.58.106:8000"
+        private const val BASE_URL_UPLOAD = "http://192.168.58.103:8000"
 
         private const val BASE_URL_GET = "http://10.1.2.22:544"
 

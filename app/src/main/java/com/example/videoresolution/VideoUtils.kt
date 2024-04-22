@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.AsyncTask
 import android.util.Log
 import android.widget.Toast
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.arthenica.mobileffmpeg.FFmpeg
 import okhttp3.MediaType
 import okhttp3.MultipartBody
@@ -15,15 +17,23 @@ import java.io.File
 import java.util.Calendar
 import java.util.UUID
 
+
 object VideoUtils {
+
+    // Define un LiveData para representar el estado de la subida del video
+    private val _uploadStatus = MutableLiveData<Boolean>()
+    val uploadStatus: LiveData<Boolean> = _uploadStatus
 
     class VideoConversionTaskClass(
         private val context: Context,
         private val outputPath: String,
         private val startTime: Int,
-        private val endTime: Int
+        private val endTime: Int,
     ) : AsyncTask<String, Void, Int>() {
 
+
+        private var isUploadSuccess = false
+        private var isUploadFailed = false
         override fun doInBackground(vararg params: String?): Int {
             val inputPath = params[0] ?: ""
             val width = params[2] ?: ""
@@ -69,10 +79,9 @@ object VideoUtils {
             return FFmpeg.execute(resolutionReductionCommand)
         }
         override fun onPostExecute(result: Int) {
-            //progressDialog.dismiss()
 
             if (result == 0) {
-                //showToast(context,"Video procesado exitosamente")
+
 
                 val bed = "02"
                 val width = "720"
@@ -93,7 +102,7 @@ object VideoUtils {
 
 
             } else {
-                showToast(context,"Error al procesar el video")
+                _uploadStatus.postValue(false) // Subida del video fallida
             }
         }
         private fun getTempFilePath(context: Context): String {
@@ -144,17 +153,13 @@ object VideoUtils {
                     if (response.isSuccessful) {
                         val responseBody = response.body()
                         if (responseBody != null) {
-                            //showToast(context,"Información cargada exitosamente.")
 
                         } else {
-                            showToast(context,"Error cargando información.")
                         }
                     }
                 }
 
                 override fun onFailure(call: Call<MainActivity.YourResponseModel>, t: Throwable) {
-                    showToast(context,"Error en la solicitud del servidor: ${t.message}")
-                    Log.e("UploadInfo", "Error en la solicitud del servidor: ${t.message}", t)
                 }
 
             }
@@ -174,19 +179,22 @@ object VideoUtils {
                     if (response.isSuccessful) {
                         val responseBody = response.body()
                         showToast(context,"Video subido exitosamente al servidor.")
-                    } else {
+                        _uploadStatus.postValue(true)
+                    }
+                    else {
+                        _uploadStatus.postValue(false)
                         showToast(context,"Error al subir el video al servidor.")
                     }
                 }
 
                 override fun onFailure(call: Call<MainActivity.YourResponseModelVideo>, t: Throwable) {
+                    _uploadStatus.postValue(false)
                     showToast(context,"Error en la solicitud al servidor: ${t.message}")
                     Log.e("UploadVideo", "Error en la solicitud al servidor: ${t.message}", t)
                 }
             }
+
             )
         }
-
     }
-
 }
