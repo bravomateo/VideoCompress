@@ -23,9 +23,17 @@ object VideoUtils {
 
     private val uploadVideoResultLiveData: MutableLiveData<Boolean> = MutableLiveData()
 
+    private val loadVideoResultLiveData: MutableLiveData<Boolean> = MutableLiveData()
+
     fun getUploadVideoResultLiveData(): LiveData<Boolean> {
         return uploadVideoResultLiveData
     }
+
+    fun getLoadVideoResultLiveData(): LiveData<Boolean> {
+        return loadVideoResultLiveData
+    }
+
+
     class VideoConversionTaskClass(
         private val context: Context,
         private val outputPath: String,
@@ -35,6 +43,9 @@ object VideoUtils {
 
 
         override fun doInBackground(vararg params: String?): Int {
+
+            loadVideoResultLiveData.postValue(true)
+
             val inputPath = params[0] ?: ""
             val width = params[2] ?: ""
             val height = params[3] ?: ""
@@ -94,6 +105,9 @@ object VideoUtils {
 
                 val selectedBlock = "03"
                 val selectedFarm = "BC"
+
+
+
 
                 uploadInfoToServer(context,selectedFarm, selectedBlock, bed, videoName, resolution, fps, id)
 
@@ -178,6 +192,7 @@ object VideoUtils {
                     if (response.isSuccessful) {
                         val responseBody = response.body()
                         showToast(context,"Video subido exitosamente al servidor.")
+                        loadVideoResultLiveData.postValue(false)
                         uploadVideoResultLiveData.postValue(true)
                     }
                     else {

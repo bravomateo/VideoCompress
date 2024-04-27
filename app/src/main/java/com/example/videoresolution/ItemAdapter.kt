@@ -6,14 +6,18 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.example.videoresolution.R
 import com.example.videoresolution.Video
 import com.example.videoresolution.VideoState
 import com.example.videoresolution.VideoUtils
+import com.google.gson.Gson
+import com.google.gson.reflect.TypeToken
 
 class ItemAdapter(
+    private val context: Context,
     private val videos: List<Video>,
     private val onButtonClick: (Int) -> Unit
 ) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
@@ -22,10 +26,24 @@ class ItemAdapter(
     private val videoStates: MutableMap<Int, VideoState> = mutableMapOf()
 
     init {
+        loadVideoStates()
         videos.forEachIndexed { index, _ ->
-            videoStates[index] = VideoState.READY_TO_CONVERT
+            videoStates.getOrPut(index) { VideoState.READY_TO_CONVERT }
         }
     }
+
+    private fun loadVideoStates() {
+        val sharedPref = context.getSharedPreferences(
+            "video_states_pref",
+            Context.MODE_PRIVATE
+        )
+        val json = sharedPref.getString("video_states", null)
+        json?.let {
+            val type = object : TypeToken<MutableMap<Int, VideoState>>() {}.type
+            videoStates.putAll(Gson().fromJson(json, type))
+        }
+    }
+
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         val view =
@@ -40,6 +58,8 @@ class ItemAdapter(
         holder.bedTextView.text = "Cama: " + item.bed
         holder.descriptionTextView.text = item.nameVideo
 
+        //Log.d("ItemAdapterVideoStates", "Video State at position: $videoStates")
+
         when (videoStates[position]) {
             VideoState.READY_TO_CONVERT -> {
                 holder.button.visibility = View.VISIBLE
@@ -47,7 +67,7 @@ class ItemAdapter(
                 holder.buttonSucces.visibility = View.INVISIBLE
                 holder.buttonError.visibility = View.INVISIBLE
 
-                Log.d("ItemAdapter", "State: READY_TO_CONVERT at position $position")
+                //Log.d("StatusItemAdapter", "State: READY_TO_CONVERT at position $position")
             }
 
             VideoState.UPLOADING -> {
@@ -55,7 +75,7 @@ class ItemAdapter(
                 holder.progressBar.visibility = View.VISIBLE
                 holder.buttonSucces.visibility = View.INVISIBLE
                 holder.buttonError.visibility = View.INVISIBLE
-                Log.d("ItemAdapter", "State: UPLOADING at position $position")
+                //Log.d("StatusItemAdapter", "State: UPLOADING at position $position")
             }
 
             VideoState.UPLOAD_SUCCESS -> {
@@ -63,7 +83,7 @@ class ItemAdapter(
                 holder.progressBar.visibility = View.INVISIBLE
                 holder.buttonSucces.visibility = View.VISIBLE
                 holder.buttonError.visibility = View.INVISIBLE
-                Log.d("ItemAdapter", "State: UPLOAD_SUCCESS at position $position")
+                //Log.d("StatusItemAdapter", "State: UPLOAD_SUCCESS at position $position")
             }
 
             VideoState.UPLOAD_FAILED -> {
@@ -71,7 +91,7 @@ class ItemAdapter(
                 holder.progressBar.visibility = View.INVISIBLE
                 holder.buttonSucces.visibility = View.INVISIBLE
                 holder.buttonError.visibility = View.VISIBLE
-                Log.d("ItemAdapter", "State: UPLOAD_FAILED at position $position")
+                //Log.d("StatusItemAdapter", "State: UPLOAD_FAILED at position $position")
             }
 
             else -> {
@@ -101,11 +121,26 @@ class ItemAdapter(
     }
 
     private fun updateVideoState(position: Int, state: VideoState) {
+        //Log.d("ItemAdapterFunction", "Updating video state at position $position to $state")
         videoStates[position] = state
+        saveVideoStates()
         notifyDataSetChanged()
+        //Log.d("ItemAdapterFunction", "Video state updated successfully at position $position")
+    }
+
+    private fun saveVideoStates() {
+        val sharedPref = context.getSharedPreferences(
+            "video_states_pref",
+            Context.MODE_PRIVATE
+        )
+        with(sharedPref.edit()) {
+            putString("video_states", Gson().toJson(videoStates))
+            apply()
+        }
     }
 
     fun uploadVideo(
+        lifecycleOwner: LifecycleOwner,
         position: Int,
         context: Context,
         outputFilePath: String,
@@ -116,7 +151,6 @@ class ItemAdapter(
         height: String,
         fps: String
     ) {
-        updateVideoState(position, VideoState.UPLOADING)
 
         VideoUtils.VideoConversionTaskClass(context, outputFilePath, startTime, endTime)
             .execute(
@@ -127,15 +161,29 @@ class ItemAdapter(
                 fps
             )
 
-        VideoUtils.getUploadVideoResultLiveData().observeForever(Observer { isSuccess ->
-            if (isSuccess) {
+        val uploadVideoResultLiveData = VideoUtils.getUploadVideoResultLiveData()
+        val loadVideoResultLiveData = VideoUtils.getLoadVideoResultLiveData()
+
+        // Eliminar el observador anterior antes de agregar uno nuevo
+        uploadVideoResultLiveData.removeObservers(lifecycleOwner)
+        loadVideoResultLiveData.removeObservers(lifecycleOwner)
+
+        uploadVideoResultLiveData.observe(lifecycleOwner) { isUploaded ->
+            if (isUploaded) {
                 updateVideoState(position, VideoState.UPLOAD_SUCCESS)
-            }
-            else {
+            } else {
                 updateVideoState(position, VideoState.UPLOAD_FAILED)
             }
-        })
+            Log.d("ItemAdapter", "uploadVideoResultLiveData emitted: $isUploaded")
+        }
 
+        loadVideoResultLiveData.observe(lifecycleOwner) { isLoaded ->
+            if (isLoaded) {
+                updateVideoState(position, VideoState.UPLOADING)
+                Log.d("ItemAdapter", "loadVideoResultLiveData emitted: $isLoaded")
+            }
+        }
     }
+
 
 }

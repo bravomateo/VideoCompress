@@ -96,12 +96,12 @@ class LoginSecActivity : AppCompatActivity() {
 
         lifecycleScope.launch(Dispatchers.IO) {
             val videos = videoDao.getAll()
-            Log.d("MainActivityVideos", "Videos: ${videos.toString()}")
+            //Log.d("MainActivityVideos", "Videos: ${videos.toString()}")
 
             runOnUiThread {
-                itemAdapter = ItemAdapter(videos) { position ->
+                itemAdapter = ItemAdapter(this@LoginSecActivity, videos) { position ->
                     val clickedItem = videos[position]
-                    showToast("Subiendo el video: ${clickedItem.nameVideo}")
+
 
                     val outputFilePath: String = clickedItem.outputFilePath!!
                     val startTime: Int = clickedItem.startTime!!
@@ -112,7 +112,9 @@ class LoginSecActivity : AppCompatActivity() {
                     val fps: String = clickedItem.fps!!
 
                     // Llama a uploadVideo en el ItemAdapter
-                    itemAdapter.uploadVideo(position, applicationContext, outputFilePath, startTime, endTime, originalPath, width, height, fps)
+                    Log.d("MainActivityVideos", "The position selected is $position")
+                    showToast("Subiendo el video: ${clickedItem.nameVideo}")
+                    itemAdapter.uploadVideo(this@LoginSecActivity, position, applicationContext, outputFilePath, startTime, endTime, originalPath, width, height, fps)
 
                 }
                 recyclerView.adapter = itemAdapter
