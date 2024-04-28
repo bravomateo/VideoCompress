@@ -3,6 +3,10 @@ package com.example.videoresolution
 import android.content.Context
 import android.os.AsyncTask
 import android.util.Log
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.TextView
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -141,8 +145,19 @@ object VideoUtils {
 
             return "$diaFormateado-$mesFormateado-$anio-$horaFormateada-$minutoFormateado-$segundoFormateado"
         }
-        private fun showToast(context: Context, message: String) {
-            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        private fun showToast(context: Context, msg: String?) {
+            val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            val view: View = inflater.inflate(R.layout.custom_toast,null)
+
+            val txtMensaje = view.findViewById<TextView>(R.id.txtMensajeToast1)
+            txtMensaje.text = msg
+
+            val toast = Toast(context)
+            toast.setGravity(Gravity.CENTER_VERTICAL or Gravity.BOTTOM, 0, 200)
+            toast.duration = Toast.LENGTH_LONG
+            toast.view = view
+            toast.show()
+
         }
         private fun uploadInfoToServer(
             context: Context,
@@ -202,7 +217,7 @@ object VideoUtils {
                 }
 
                 override fun onFailure(call: Call<MainActivity.YourResponseModelVideo>, t: Throwable) {
-                    showToast(context,"Error en la solicitud al servidor: ${t.message}")
+                    showToast(context,"Error en la solicitud al servidor: ${t.message}.")
                     Log.e("UploadVideo", "Error en la solicitud al servidor: ${t.message}", t)
                     uploadVideoResultLiveData.postValue(false)
                 }

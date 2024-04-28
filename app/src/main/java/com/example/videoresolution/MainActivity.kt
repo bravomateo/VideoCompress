@@ -16,7 +16,9 @@ import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
+import android.view.Gravity
 import android.view.LayoutInflater
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
@@ -129,9 +131,9 @@ class MainActivity : AppCompatActivity() {
 
         if (requestCode == REQUEST_PERMISSION_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             openFilePicker()
-            showToast("Video seleccionado.")
+            showToast(this,"Video seleccionado.")
         } else {
-            showToast("Permiso denegado. No se puede seleccionar el video.")
+            showToast(this,"Permiso denegado. No se puede seleccionar el video.")
         }
     }
 
@@ -164,11 +166,11 @@ class MainActivity : AppCompatActivity() {
                 showFirstFramePreview(selectedVideoUri, originalPath, outputFilePath, width, height, fps, selectedFarm, block, bed)
 
             } else {
-                showToast("Ingrese valores válidos para la resolución.")
+                showToast(this,"Ingrese valores válidos para la resolución.")
             }
 
         } else {
-            showToast("No se seleccionó ningún video.")
+            showToast(this,"No se seleccionó ningún video.")
         }
     }
 
@@ -287,7 +289,7 @@ class MainActivity : AppCompatActivity() {
 
             videoView.stopPlayback()
 
-            showToast("Video guardado exitosamente")
+            showToast(this, "Video guardado exitosamente.")
 
             selectedOrientationDegrees = 0f
 
@@ -331,8 +333,19 @@ class MainActivity : AppCompatActivity() {
 
         return "$diaFormateado-$mesFormateado-$anio-$horaFormateada-$minutoFormateado-$segundoFormateado"
     }
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    private fun showToast(context: Context, msg: String?) {
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view: View = inflater.inflate(R.layout.custom_toast,null)
+
+        val txtMensaje = view.findViewById<TextView>(R.id.txtMensajeToast1)
+        txtMensaje.text = msg
+
+        val toast = Toast(context)
+        toast.setGravity(Gravity.CENTER_VERTICAL or Gravity.BOTTOM, 0, 200)
+        toast.duration = Toast.LENGTH_LONG
+        toast.view = view
+        toast.show()
+
     }
 
     private fun getRealPathFromUri(uri: Uri): String {

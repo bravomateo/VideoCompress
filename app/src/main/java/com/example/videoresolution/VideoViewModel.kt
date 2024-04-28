@@ -16,9 +16,7 @@ class VideoViewModel : ViewModel() {
     val uploadStatus: LiveData<UploadStatus> = _uploadStatus
 
     fun uploadVideoToServer(videoFile: File) {
-        // Aquí realiza la lógica para cargar el video
 
-        // Cuando la carga está completa, actualiza el estado del LiveData
         _uploadStatus.value = UploadStatus.UPLOADED
     }
 }

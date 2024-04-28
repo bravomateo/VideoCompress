@@ -1,56 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFF"
     android:padding="40dp"
     tools:context=".MainActivity">
 
+    <TextView
+        android:id="@+id/textViewCaracteristicas3"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/sf_pro_display_bold"
+        android:gravity="center"
+        android:text="Características de video:"
+        android:textColor="@color/green"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bedAndFarmLayout" />
+
     <ImageView
         android:id="@+id/imageViewCapiro"
-        android:layout_width="290dp"
-        android:layout_height="59dp"
-        android:layout_marginTop="16dp"
+        android:layout_width="310dp"
+        android:layout_height="78dp"
+        android:layout_marginTop="18dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/capiro" />
+
 
     <TextView
         android:id="@+id/textViewCaracteristicas"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:gravity="center"
+        android:layout_marginTop="24dp"
         android:fontFamily="@font/sf_pro_display_bold"
-        android:text="Características de Compresión"
+        android:gravity="center"
+        android:text="Edición de Video"
         android:textColor="@color/orange"
-        android:textSize="20sp"
+        android:textSize="22sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageViewCapiro" />
 
+    <TextView
+        android:id="@+id/textViewCaracteristicas2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="26dp"
+        android:fontFamily="@font/sf_pro_display_bold"
+        android:gravity="center"
+        android:text="Información de video:"
+        android:textColor="@color/green"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCaracteristicas" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayoutBlock"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:backgroundTint="@color/black"
+        android:hint="Bloque"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.528"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCaracteristicas2">
+
+        <AutoCompleteTextView
+            android:id="@+id/dropdown_field_blocks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/sf_ro_display_regular"
+            android:inputType="none"
+            android:textColor="@color/black"
+            android:textColorHighlight="@color/black" />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <LinearLayout
+        android:id="@+id/bedAndFarmLayout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="94dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="76dp"
+        android:orientation="horizontal"
+        android:padding="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.704"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutBlock">
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_weight="1"
+            android:fontFamily="@font/sf_ro_display_regular"
+            android:hint="Cama">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextBed"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fontFamily="@font/sf_ro_display_regular"
+                android:gravity="center"
+                android:inputType="number|numberSigned"
+                android:textColor="@color/black" />
+
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+    </LinearLayout>
+
+
     <LinearLayout
         android:id="@+id/editTextLayout"
-        android:layout_width="322dp"
-        android:layout_height="94dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginTop="16dp"
         android:layout_marginEnd="16dp"
         android:orientation="horizontal"
         android:padding="16dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/bedAndFarmLayout">
+        app:layout_constraintTop_toBottomOf="@+id/textViewCaracteristicas3">
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginEnd="8dp"
+            android:layout_weight="1"
             android:fontFamily="@font/sf_ro_display_regular"
             android:hint="Ancho">
 
@@ -58,8 +153,8 @@
                 android:id="@+id/editTextWidth"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:fontFamily="@font/sf_ro_display_regular"
+                android:gravity="center"
                 android:inputType="number|numberSigned"
                 android:textColor="@color/black" />
 
@@ -68,8 +163,8 @@
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginEnd="8dp"
+            android:layout_weight="1"
             android:fontFamily="@font/sf_ro_display_regular"
             android:hint="Alto">
 
@@ -77,9 +172,9 @@
                 android:id="@+id/editTextHeight"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/sf_ro_display_regular"
                 android:gravity="center"
                 android:inputType="number|numberSigned"
-                android:fontFamily="@font/sf_ro_display_regular"
                 android:textColor="@color/black" />
 
         </com.google.android.material.textfield.TextInputLayout>
@@ -95,14 +190,15 @@
                 android:id="@+id/editTextFPS"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center"
                 android:fontFamily="@font/sf_ro_display_regular"
+                android:gravity="center"
                 android:inputType="number|numberSigned"
-                android:textColor="@color/black" />
+                android:shadowColor="@color/green"
+                android:textColor="@color/black"
+                android:textColorHint="@color/green" />
 
         </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
-
 
     <Button
         android:id="@+id/selectFileButton"
@@ -117,97 +213,35 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/editTextLayout" />
 
-    <Button
-        android:id="@+id/syncButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:backgroundTint="@color/green"
-        android:fontFamily="@font/sf_ro_display_regular"
-        android:text="Guardar información"
-        android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/selectFileButton" />
-
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/ListVideos"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="256dp"
-        android:layout_marginTop="628dp"
+        android:layout_marginStart="248dp"
+        android:layout_marginTop="632dp"
         android:contentDescription="Description"
         android:scaleType="center"
-        android:src="@drawable/back"
+        android:src="@drawable/volver"
         app:backgroundTint="@color/green"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:maxImageSize="48dp"
         app:tint="@color/white" />
 
-    <LinearLayout
-        android:id="@+id/bedAndFarmLayout"
-        android:layout_width="match_parent"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="86dp"
-        android:layout_marginTop="16dp"
-        android:layout_marginEnd="86dp"
         android:orientation="horizontal"
-        android:padding="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayoutBlock">
+        app:layout_constraintGuide_begin="20dp" />
 
-
-        <EditText
-            android:id="@+id/editTextBed"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="center"
-            android:fontFamily="@font/sf_ro_display_regular"
-            android:hint="Cama"
-            android:inputType="number|numberSigned"
-            android:textColor="@color/black" />
-    </LinearLayout>
-
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayoutBlock"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
-        android:layout_width="150dp"
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/guideline2"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
-        android:hint="Bloque"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textViewCaracteristicas">
-
-        <AutoCompleteTextView
-            android:id="@+id/dropdown_field_blocks"
-            android:fontFamily="@font/sf_ro_display_regular"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:inputType="none"/>
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="113dp"
-        android:layout_height="wrap_content"
-        tools:layout_editor_absoluteX="297dp"
-        tools:layout_editor_absoluteY="582dp">
-
-    </com.google.android.material.textfield.TextInputLayout>
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:layout_width="124dp"
-        android:layout_height="wrap_content"
-        tools:layout_editor_absoluteX="286dp"
-        tools:layout_editor_absoluteY="347dp">
-
-    </com.google.android.material.textfield.TextInputLayout>
+        android:orientation="horizontal"
+        app:layout_constraintGuide_begin="20dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

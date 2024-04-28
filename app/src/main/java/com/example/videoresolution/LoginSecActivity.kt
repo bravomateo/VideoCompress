@@ -1,13 +1,17 @@
 package com.example.videoresolution
 import ItemAdapter
 import android.app.Dialog
+import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.ProgressBar
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
@@ -23,7 +27,7 @@ import kotlinx.coroutines.launch
 class LoginSecActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
-    //private lateinit var itemAdapter: ItemAdapter
+    private lateinit var itemAdapter: ItemAdapter
 
 
     class MyDialogFragment : DialogFragment() {
@@ -84,9 +88,6 @@ class LoginSecActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_sec)
 
-        lateinit var itemAdapter: ItemAdapter
-
-
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -102,7 +103,7 @@ class LoginSecActivity : AppCompatActivity() {
             //Log.d("MainActivityVideos", "Videos: ${videos.toString()}")
 
             runOnUiThread {
-                itemAdapter = ItemAdapter(this@LoginSecActivity, videos,      this@LoginSecActivity,) { position ->
+                itemAdapter = ItemAdapter(this@LoginSecActivity, videos) { position ->
                     val clickedItem = videos[position]
 
 
@@ -116,23 +117,8 @@ class LoginSecActivity : AppCompatActivity() {
 
                     // Llama a uploadVideo en el ItemAdapter
                     Log.d("MainActivityVideos", "The position selected is $position")
-                    showToast("Subiendo el video: ${clickedItem.nameVideo}")
-
-
-                    itemAdapter.uploadVideo(
-                        this@LoginSecActivity,
-                        position,
-                        applicationContext,
-                        outputFilePath,
-                        startTime,
-                        endTime,
-                        originalPath,
-                        width,
-                        height,
-                        fps
-                    )
-
-
+                    showToast(this@LoginSecActivity, "Subiendo el video: ${clickedItem.nameVideo}.")
+                    itemAdapter.uploadVideo(this@LoginSecActivity, position, applicationContext, outputFilePath, startTime, endTime, originalPath, width, height, fps)
 
                 }
                 recyclerView.adapter = itemAdapter
@@ -179,13 +165,24 @@ class LoginSecActivity : AppCompatActivity() {
                 intent.putExtra("blocksList", blocksList.toTypedArray())
                 startActivity(intent)
             } else {
-                showToast("Sincronizar para añadir un video")
+                showToast(this, "Sincronizar para añadir un video.")
             }
         }
     }
 
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+    private fun showToast(context: Context, msg: String?) {
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view: View = inflater.inflate(R.layout.custom_toast,null)
+
+        val txtMensaje = view.findViewById<TextView>(R.id.txtMensajeToast1)
+        txtMensaje.text = msg
+
+        val toast = Toast(context)
+        toast.setGravity(Gravity.CENTER_VERTICAL or Gravity.BOTTOM, 0, 200)
+        toast.duration = Toast.LENGTH_LONG
+        toast.view = view
+        toast.show()
+
     }
 
 }

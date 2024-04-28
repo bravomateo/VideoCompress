@@ -1,11 +1,21 @@
 package com.example.videoresolution
 
+import CustomTypefaceSpan
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
+import android.graphics.Typeface
 import android.os.Bundle
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.style.StyleSpan
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 
 class LoginActivity : AppCompatActivity() {
@@ -13,10 +23,13 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var farmsLoginDropdown: AutoCompleteTextView
     private lateinit var selectedFarm: String
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
+        //val customFont = Typeface.createFromAsset(assets, "sf_pro_display_regular.ttf")
 
         selectedFarm = intent.getStringExtra("selectedFarm") ?: ""
 
@@ -42,12 +55,28 @@ class LoginActivity : AppCompatActivity() {
                 intent.putExtra("selectedFarm", selectedFarm)
                 startActivity(intent)
             } else {
-                showToast("Sincronizar y seleccionar una finca válida")
+                showToastCustom(this, "Sincronizar y seleccionar una finca válida.")
+
             }
         }
     }
 
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+
+    private fun showToastCustom(context: Context, msg: String?) {
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view: View = inflater.inflate(R.layout.custom_toast,null)
+
+        val txtMensaje = view.findViewById<TextView>(R.id.txtMensajeToast1)
+        txtMensaje.text = msg
+
+        val toast = Toast(context)
+        toast.setGravity(Gravity.CENTER_VERTICAL or Gravity.BOTTOM, 0, 200)
+        toast.duration = Toast.LENGTH_LONG
+        toast.view = view
+        toast.show()
+
     }
+
+
+
 }

@@ -4,14 +4,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#FFFFFF"
     tools:context=".LoginActivity">
 
     <ImageView
         android:id="@+id/imageViewLogin"
-        android:layout_width="308dp"
-        android:layout_height="76dp"
-        android:layout_marginTop="32dp"
+        android:layout_width="310dp"
+        android:layout_height="78dp"
+        android:layout_marginTop="60dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.495"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/capiro" />
@@ -20,15 +22,30 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="48dp"
-        android:text="SICOP APP"
+        android:layout_marginTop="54dp"
         android:fontFamily="@font/sf_pro_display_bold"
+        android:text="SICOP APP"
         android:textColor="@color/orange"
         android:textSize="36sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/imageViewLogin" />
+
+    <TextView
+        android:id="@+id/textView5"
+        android:layout_width="138dp"
+        android:layout_height="21dp"
+        android:layout_marginTop="12dp"
+        android:fontFamily="@font/sf_pro_display_bold"
+        android:text="Con el apoyo de:"
+        android:textColor="@color/green"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.142"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageView3" />
 
     <Button
         android:id="@+id/syncButtonFarm"
@@ -46,7 +63,7 @@
         android:id="@+id/buttonLogin"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
+        android:layout_marginTop="24dp"
         android:fontFamily="@font/sf_ro_display_regular"
         android:text="Ingresar"
         android:textColor="@color/white"
@@ -59,9 +76,9 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="84dp"
-        android:hint="Finca"
+        android:layout_marginTop="64dp"
         android:fontFamily="@font/sf_ro_display_regular"
+        android:hint="Finca"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView">
@@ -72,9 +89,36 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/sf_ro_display_regular"
-            android:inputType="none" />
+            android:inputType="none"
+            android:textColor="@color/black" />
 
     </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/imageView2"
+        android:layout_width="187dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="85dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="85dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.472"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView5"
+        app:srcCompat="@drawable/udea" />
+
+    <ImageView
+        android:id="@+id/imageView3"
+        android:layout_width="350dp"
+        android:layout_height="34dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="160dp"
+        android:layout_marginEnd="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.478"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/buttonLogin"
+        app:srcCompat="@drawable/linea" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

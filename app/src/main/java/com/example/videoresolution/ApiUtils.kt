@@ -1,8 +1,12 @@
 package com.example.videoresolution
 import android.content.Context
 import android.util.Log
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
+import android.widget.TextView
 import android.widget.Toast
 import retrofit2.Call
 import retrofit2.Callback
@@ -18,7 +22,7 @@ object ApiUtils {
                     val farmResponse = response.body()
 
                     if (farmResponse != null) {
-                        showToast(context, "Fincas obtenidas.")
+                        showToastCustom(context, "Fincas obtenidas.")
                         val farmsList = farmResponse.farms
                         val farmInitials =
                             farmsList.map { farm -> farm.name.split(" - ")[1] ?: "Sin Siglas" }
@@ -32,15 +36,15 @@ object ApiUtils {
                         farmsDropdown.setAdapter(farmAdapter)
                     }
                 } else {
-                    showToast(
+                    showToastCustom(
                         context,
-                        "Error al obtener fincas del servidor. Código: ${response.code()}"
+                        "Error al obtener fincas del servidor. Código: ${response.code()}."
                     )
                 }
             }
 
             override fun onFailure(call: Call<FarmResponse>, t: Throwable) {
-                showToast(context, "Error en la solicitud de fincas: ${t.message}")
+                showToastCustom(context, "Error en la solicitud de fincas: ${t.message}.")
                 Log.e("GetFarms", "Error en la solicitud al servidor de fincas: ${t.message}", t)
             }
         })
@@ -56,7 +60,7 @@ object ApiUtils {
                     val blocksList = response.body()
 
                     if (blocksList != null) {
-                        showToast(context, "Bloques obtenidos.")
+                        showToastCustom(context, "Bloques obtenidos.")
                         val blockNumbers = blocksList.map { block -> block.blockNumber }.toTypedArray()
 
                         val adapter = ArrayAdapter(
@@ -67,12 +71,12 @@ object ApiUtils {
                         dropdown.setAdapter(adapter)
                     }
                 } else {
-                    showToast(context, "Error al obtener bloques del servidor. Código: ${response.code()}")
+                    showToastCustom(context, "Error al obtener bloques del servidor. Código: ${response.code()}.")
                 }
             }
 
             override fun onFailure(call: Call<List<BlockItem>>, t: Throwable) {
-                showToast(context, "Error en la solicitud de bloques: ${t.message}")
+                showToastCustom(context, "Error en la solicitud de bloques: ${t.message}.")
                 Log.e("GetBlocks", "Error en la solicitud al servidor de bloques: ${t.message}", t)
             }
         })
@@ -107,18 +111,18 @@ object ApiUtils {
                     val blocksList = response.body()
 
                     if (blocksList != null) {
-                        showToast(context, "Bloques obtenidos.")
+                        showToastCustom(context, "Bloques obtenidos.")
                         val blockNumbers = blocksList.map { block -> block.blockNumber }.toTypedArray()
                         callback(blockNumbers, BlockRequestStatus.SUCCESS)
                     }
                 } else {
-                    showToast(context, "Error al obtener bloques del servidor. Código: ${response.code()}")
+                    showToastCustom(context, "Error al obtener bloques del servidor. Código: ${response.code()}.")
                     callback(null, BlockRequestStatus.ERROR)
                 }
             }
 
             override fun onFailure(call: Call<List<BlockItem>>, t: Throwable) {
-                showToast(context, "Error en la solicitud de bloques: ${t.message}")
+                showToastCustom(context, "Error en la solicitud de bloques: ${t.message}.")
                 Log.e("GetBlocks", "Error en la solicitud al servidor de bloques: ${t.message}", t)
                 callback(null, BlockRequestStatus.ERROR)
             }
@@ -126,13 +130,20 @@ object ApiUtils {
     }
 
 
+    private fun showToastCustom(context: Context, msg: String?) {
+        val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val view: View = inflater.inflate(R.layout.custom_toast,null)
 
+        val txtMensaje = view.findViewById<TextView>(R.id.txtMensajeToast1)
+        txtMensaje.text = msg
 
+        val toast = Toast(context)
+        toast.setGravity(Gravity.CENTER_VERTICAL or Gravity.BOTTOM, 0, 200)
+        toast.duration = Toast.LENGTH_LONG
+        toast.view = view
+        toast.show()
 
-    private fun showToast(context: Context, message: String) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
     }
-
 
 
 }
