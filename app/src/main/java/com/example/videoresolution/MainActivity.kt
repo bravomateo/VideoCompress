@@ -78,8 +78,7 @@ class MainActivity : AppCompatActivity() {
 
         blockDropdown = findViewById(R.id.dropdown_field_blocks)
         val blocksItems = arrayOf("No Block")
-        val blocksAdapter =
-            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, blocksItems)
+        val blocksAdapter = ArrayAdapter(this, R.layout.list_item, blocksItems)
         blockDropdown.setAdapter(blocksAdapter)
 
         blockDropdown.setOnItemClickListener { _, _, position, _ ->
@@ -87,8 +86,6 @@ class MainActivity : AppCompatActivity() {
         }
 
         selectedFarm = "BC"
-
-        Log.d("FarmMain", "Selected farm: $selectedFarm")
 
 
         val blocksList = intent.getStringArrayExtra("blocksList")?.mapNotNull { it }?.toTypedArray() ?: arrayOf()
@@ -404,7 +401,7 @@ class MainActivity : AppCompatActivity() {
         //private const val BASE_URL_UPLOAD = "http://192.168.10.45:8000"
 
         // Home WIFI
-        private const val BASE_URL_UPLOAD = "http://192.168.78.23:8000"
+        private const val BASE_URL_UPLOAD = "http://192.168.58.105:8000"
 
         private const val BASE_URL_GET = "http://10.1.2.22:544"
 

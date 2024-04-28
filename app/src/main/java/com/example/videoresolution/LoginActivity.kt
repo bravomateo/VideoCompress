@@ -22,8 +22,8 @@ class LoginActivity : AppCompatActivity() {
 
         farmsLoginDropdown = findViewById(R.id.dropdown_field_farms)
         val farmsItems = arrayOf("Sin fincas")
-        val farmsAdapter =
-            ArrayAdapter(this, android.R.layout.simple_dropdown_item_1line, farmsItems)
+        val farmsAdapter = ArrayAdapter(this, R.layout.list_item, farmsItems)
+
         farmsLoginDropdown.setAdapter(farmsAdapter)
 
         farmsLoginDropdown.setOnItemClickListener { _, _, position, _ ->
@@ -32,7 +32,6 @@ class LoginActivity : AppCompatActivity() {
 
         val syncButtonFarm: Button = findViewById(R.id.syncButtonFarm)
         syncButtonFarm.setOnClickListener {
-            // Show Farm dropdown
             ApiUtils.getAndSetFarmsDropdown(this, farmsLoginDropdown)
         }
 

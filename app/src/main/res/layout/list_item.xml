@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    style="?android:attr/dropDownItemStyle"
+    android:fontFamily="@font/sf_ro_display_regular"
+    android:textAppearance="?android:attr/textAppearanceLargePopupMenu"
+    android:singleLine="true"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:padding="20dp"
-    android:ellipsize="end"
-    android:maxLines="1"
-    android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle1"
-    />
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:ellipsize="end" />

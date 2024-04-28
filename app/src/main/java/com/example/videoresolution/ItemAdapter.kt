@@ -7,6 +7,8 @@ import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
 import com.example.videoresolution.R
@@ -19,9 +21,14 @@ import com.google.gson.reflect.TypeToken
 class ItemAdapter(
     private val context: Context,
     private val videos: List<Video>,
+    private val lifecycleOwner: LifecycleOwner,
     private val onButtonClick: (Int) -> Unit
+
 ) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
+
+    private val uploadVideoResultLiveDataMap = mutableMapOf<Int, MutableLiveData<Boolean>>()
+    private val loadVideoResultLiveDataMap = mutableMapOf<Int, MutableLiveData<Boolean>>()
 
     private val videoStates: MutableMap<Int, VideoState> = mutableMapOf()
 
@@ -31,6 +38,7 @@ class ItemAdapter(
             videoStates.getOrPut(index) { VideoState.READY_TO_CONVERT }
         }
     }
+
 
     private fun loadVideoStates() {
         val sharedPref = context.getSharedPreferences(
@@ -46,59 +54,49 @@ class ItemAdapter(
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
-        val view =
-            LayoutInflater.from(parent.context).inflate(R.layout.item_video_card, parent, false)
+        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_video_card, parent, false)
         return ItemViewHolder(view)
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+
         val item = videos[position]
+
+        VideoUtils.getLoadVideoResultLiveData().observe(lifecycleOwner) { isUploaded ->
+            if (isUploaded) {
+                holder.button.visibility = View.VISIBLE
+                holder.progressBar.visibility = View.INVISIBLE
+                holder.buttonSucces.visibility = View.INVISIBLE
+                holder.buttonError.visibility = View.INVISIBLE
+            } else {
+                holder.button.visibility = View.INVISIBLE
+                holder.progressBar.visibility = View.VISIBLE
+                holder.buttonSucces.visibility = View.INVISIBLE
+                holder.buttonError.visibility = View.INVISIBLE
+            }
+        }
+
+        VideoUtils.getUploadVideoResultLiveData().observe(lifecycleOwner) { isLoaded ->
+            if (isLoaded) {
+                holder.button.visibility = View.INVISIBLE
+                holder.progressBar.visibility = View.INVISIBLE
+                holder.buttonSucces.visibility = View.VISIBLE
+                holder.buttonError.visibility = View.INVISIBLE
+            } else {
+                holder.button.visibility = View.INVISIBLE
+                holder.progressBar.visibility = View.INVISIBLE
+                holder.buttonSucces.visibility = View.VISIBLE
+                holder.buttonError.visibility = View.INVISIBLE
+            }
+        }
+
+
+
         holder.farmTextView.text = "Finca: " + " " + item.farm
         holder.blockTextView.text = "Bloque: " + item.block
         holder.bedTextView.text = "Cama: " + item.bed
         holder.descriptionTextView.text = item.nameVideo
 
-        //Log.d("ItemAdapterVideoStates", "Video State at position: $videoStates")
-
-        when (videoStates[position]) {
-            VideoState.READY_TO_CONVERT -> {
-                holder.button.visibility = View.VISIBLE
-                holder.progressBar.visibility = View.INVISIBLE
-                holder.buttonSucces.visibility = View.INVISIBLE
-                holder.buttonError.visibility = View.INVISIBLE
-
-                //Log.d("StatusItemAdapter", "State: READY_TO_CONVERT at position $position")
-            }
-
-            VideoState.UPLOADING -> {
-                holder.button.visibility = View.INVISIBLE
-                holder.progressBar.visibility = View.VISIBLE
-                holder.buttonSucces.visibility = View.INVISIBLE
-                holder.buttonError.visibility = View.INVISIBLE
-                //Log.d("StatusItemAdapter", "State: UPLOADING at position $position")
-            }
-
-            VideoState.UPLOAD_SUCCESS -> {
-                holder.button.visibility = View.INVISIBLE
-                holder.progressBar.visibility = View.INVISIBLE
-                holder.buttonSucces.visibility = View.VISIBLE
-                holder.buttonError.visibility = View.INVISIBLE
-                //Log.d("StatusItemAdapter", "State: UPLOAD_SUCCESS at position $position")
-            }
-
-            VideoState.UPLOAD_FAILED -> {
-                holder.button.visibility = View.INVISIBLE
-                holder.progressBar.visibility = View.INVISIBLE
-                holder.buttonSucces.visibility = View.INVISIBLE
-                holder.buttonError.visibility = View.VISIBLE
-                //Log.d("StatusItemAdapter", "State: UPLOAD_FAILED at position $position")
-            }
-
-            else -> {
-                //holder.button.visibility = View.VISIBLE
-                //holder.progressBar.visibility = View.GONE
-            }
-        }
 
         holder.button.setOnClickListener {
             onButtonClick(position)
@@ -118,14 +116,6 @@ class ItemAdapter(
         val progressBar: ProgressBar = itemView.findViewById(R.id.progressBarVideo)
         val buttonSucces: ImageButton = itemView.findViewById(R.id.SuccessUploadVideo)
         val buttonError: ImageButton = itemView.findViewById(R.id.ErrorUploadVideo)
-    }
-
-    private fun updateVideoState(position: Int, state: VideoState) {
-        //Log.d("ItemAdapterFunction", "Updating video state at position $position to $state")
-        videoStates[position] = state
-        saveVideoStates()
-        notifyDataSetChanged()
-        //Log.d("ItemAdapterFunction", "Video state updated successfully at position $position")
     }
 
     private fun saveVideoStates() {
@@ -152,6 +142,7 @@ class ItemAdapter(
         fps: String
     ) {
 
+
         VideoUtils.VideoConversionTaskClass(context, outputFilePath, startTime, endTime)
             .execute(
                 originalPath,
@@ -161,29 +152,6 @@ class ItemAdapter(
                 fps
             )
 
-        val uploadVideoResultLiveData = VideoUtils.getUploadVideoResultLiveData()
-        val loadVideoResultLiveData = VideoUtils.getLoadVideoResultLiveData()
-
-        // Eliminar el observador anterior antes de agregar uno nuevo
-        uploadVideoResultLiveData.removeObservers(lifecycleOwner)
-        loadVideoResultLiveData.removeObservers(lifecycleOwner)
-
-        uploadVideoResultLiveData.observe(lifecycleOwner) { isUploaded ->
-            if (isUploaded) {
-                updateVideoState(position, VideoState.UPLOAD_SUCCESS)
-            } else {
-                updateVideoState(position, VideoState.UPLOAD_FAILED)
-            }
-            Log.d("ItemAdapter", "uploadVideoResultLiveData emitted: $isUploaded")
-        }
-
-        loadVideoResultLiveData.observe(lifecycleOwner) { isLoaded ->
-            if (isLoaded) {
-                updateVideoState(position, VideoState.UPLOADING)
-                Log.d("ItemAdapter", "loadVideoResultLiveData emitted: $isLoaded")
-            }
-        }
     }
-
 
 }

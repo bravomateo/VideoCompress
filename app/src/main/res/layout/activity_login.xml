@@ -8,8 +8,8 @@
 
     <ImageView
         android:id="@+id/imageViewLogin"
-        android:layout_width="263dp"
-        android:layout_height="59dp"
+        android:layout_width="308dp"
+        android:layout_height="76dp"
         android:layout_marginTop="32dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -20,9 +20,10 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="36dp"
-        android:text="Log in"
-        android:textColor="@color/green"
+        android:layout_marginTop="48dp"
+        android:text="SICOP APP"
+        android:fontFamily="@font/sf_pro_display_bold"
+        android:textColor="@color/orange"
         android:textSize="36sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,7 +35,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="Sync"
+        android:fontFamily="@font/sf_ro_display_regular"
+        android:text="Sincronizar"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -45,6 +47,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="28dp"
+        android:fontFamily="@font/sf_ro_display_regular"
         android:text="Ingresar"
         android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
@@ -56,16 +59,19 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="128dp"
-        android:hint="Fincas"
+        android:layout_marginTop="84dp"
+        android:hint="Finca"
+        android:fontFamily="@font/sf_ro_display_regular"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView">
 
         <AutoCompleteTextView
+
             android:id="@+id/dropdown_field_farms"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fontFamily="@font/sf_ro_display_regular"
             android:inputType="none" />
 
     </com.google.android.material.textfield.TextInputLayout>

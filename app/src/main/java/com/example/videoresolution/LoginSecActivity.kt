@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 class LoginSecActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var itemAdapter: ItemAdapter
+    //private lateinit var itemAdapter: ItemAdapter
 
 
     class MyDialogFragment : DialogFragment() {
@@ -84,6 +84,9 @@ class LoginSecActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_sec)
 
+        lateinit var itemAdapter: ItemAdapter
+
+
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -99,7 +102,7 @@ class LoginSecActivity : AppCompatActivity() {
             //Log.d("MainActivityVideos", "Videos: ${videos.toString()}")
 
             runOnUiThread {
-                itemAdapter = ItemAdapter(this@LoginSecActivity, videos) { position ->
+                itemAdapter = ItemAdapter(this@LoginSecActivity, videos,      this@LoginSecActivity,) { position ->
                     val clickedItem = videos[position]
 
 
@@ -114,7 +117,22 @@ class LoginSecActivity : AppCompatActivity() {
                     // Llama a uploadVideo en el ItemAdapter
                     Log.d("MainActivityVideos", "The position selected is $position")
                     showToast("Subiendo el video: ${clickedItem.nameVideo}")
-                    itemAdapter.uploadVideo(this@LoginSecActivity, position, applicationContext, outputFilePath, startTime, endTime, originalPath, width, height, fps)
+
+
+                    itemAdapter.uploadVideo(
+                        this@LoginSecActivity,
+                        position,
+                        applicationContext,
+                        outputFilePath,
+                        startTime,
+                        endTime,
+                        originalPath,
+                        width,
+                        height,
+                        fps
+                    )
+
+
 
                 }
                 recyclerView.adapter = itemAdapter
