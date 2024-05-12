@@ -27,10 +27,10 @@ object ApiUtils {
                         val farmInitials =
                             farmsList.map { farm -> farm.name.split(" - ")[1] ?: "Sin Siglas" }
 
-                        // Update the farms dropdown with the obtained initials
+
                         val farmAdapter = ArrayAdapter(
                             context,
-                            android.R.layout.simple_dropdown_item_1line,
+                            R.layout.list_item,
                             farmInitials
                         )
                         farmsDropdown.setAdapter(farmAdapter)
@@ -65,7 +65,7 @@ object ApiUtils {
 
                         val adapter = ArrayAdapter(
                             context,
-                            android.R.layout.simple_dropdown_item_1line,
+                            R.layout.list_item,
                             blockNumbers
                         )
                         dropdown.setAdapter(adapter)

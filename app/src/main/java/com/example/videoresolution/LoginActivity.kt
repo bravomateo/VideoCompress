@@ -24,12 +24,9 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var selectedFarm: String
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-
-        //val customFont = Typeface.createFromAsset(assets, "sf_pro_display_regular.ttf")
 
         selectedFarm = intent.getStringExtra("selectedFarm") ?: ""
 
@@ -61,7 +58,6 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-
     private fun showToastCustom(context: Context, msg: String?) {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view: View = inflater.inflate(R.layout.custom_toast,null)
@@ -76,7 +72,5 @@ class LoginActivity : AppCompatActivity() {
         toast.show()
 
     }
-
-
 
 }

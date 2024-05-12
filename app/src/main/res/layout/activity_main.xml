@@ -85,6 +85,7 @@
             android:fontFamily="@font/sf_ro_display_regular"
             android:inputType="none"
             android:textColor="@color/black"
+            android:dropDownHeight="260dp"
             android:textColorHighlight="@color/black" />
 
     </com.google.android.material.textfield.TextInputLayout>

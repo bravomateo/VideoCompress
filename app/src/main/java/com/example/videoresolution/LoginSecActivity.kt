@@ -29,13 +29,15 @@ class LoginSecActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var itemAdapter: ItemAdapter
-    private lateinit var viewModel: MyViewModel
+
+    private val viewModel = ViewModelProvider(this)[VideoViewModel::class.java]
+
+    val videoStates: MutableMap<Int, VideoState> = mutableMapOf()
 
     class MyDialogFragment : DialogFragment() {
 
         private lateinit var imageViewStatus: ImageView
         private lateinit var progressBar: ProgressBar
-
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             return activity?.let {
@@ -85,12 +87,11 @@ class LoginSecActivity : AppCompatActivity() {
 
     }
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_sec)
 
-        viewModel = ViewModelProvider(this).get(MyViewModel::class.java)
+
 
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -103,11 +104,11 @@ class LoginSecActivity : AppCompatActivity() {
         val videoDao = db.videoDao()
 
         lifecycleScope.launch(Dispatchers.IO) {
+            val videoStates: MutableMap<Int, VideoState> = mutableMapOf()
             val videos = videoDao.getAll()
-            //Log.d("MainActivityVideos", "Videos: ${videos.toString()}")
 
             runOnUiThread {
-                itemAdapter = ItemAdapter(this@LoginSecActivity, videos) { position ->
+                itemAdapter = ItemAdapter(this@LoginSecActivity, videoStates, viewModel, videos) { position ->
                     val clickedItem = videos[position]
                     val outputFilePath: String = clickedItem.outputFilePath!!
                     val startTime: Int = clickedItem.startTime!!
@@ -117,11 +118,11 @@ class LoginSecActivity : AppCompatActivity() {
                     val height: String = clickedItem.height!!
                     val fps: String = clickedItem.fps!!
 
-                    // Llama a uploadVideo en el ItemAdapter
                     Log.d("MainActivityVideos", "The position selected is $position")
+
                     showToast(this@LoginSecActivity, "Subiendo el video: ${clickedItem.nameVideo}.")
 
-                    itemAdapter.uploadVideo(this@LoginSecActivity, position, applicationContext, outputFilePath, startTime, endTime, originalPath, width, height, fps, viewModel)
+                    itemAdapter.uploadVideo(position, applicationContext, outputFilePath, startTime, endTime, originalPath, width, height, fps, viewModel)
 
                 }
                 recyclerView.adapter = itemAdapter
