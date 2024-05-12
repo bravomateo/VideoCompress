@@ -24,31 +24,18 @@ import java.util.UUID
 
 object VideoUtils {
 
-
-    private val uploadVideoResultLiveData: MutableLiveData<Boolean> = MutableLiveData()
-
-    private val loadVideoResultLiveData: MutableLiveData<Boolean> = MutableLiveData()
-
-    fun getUploadVideoResultLiveData(): LiveData<Boolean> {
-        return uploadVideoResultLiveData
-    }
-
-    fun getLoadVideoResultLiveData(): LiveData<Boolean> {
-        return loadVideoResultLiveData
-    }
-
-
     class VideoConversionTaskClass(
         private val context: Context,
         private val outputPath: String,
         private val startTime: Int,
         private val endTime: Int,
+        private val viewModel: MyViewModel,
     ) : AsyncTask<String, Void, Int>() {
 
 
         override fun doInBackground(vararg params: String?): Int {
 
-            loadVideoResultLiveData.postValue(true)
+            viewModel.loading.postValue(true)
 
             val inputPath = params[0] ?: ""
             val width = params[2] ?: ""
@@ -119,7 +106,6 @@ object VideoUtils {
                 uploadVideoToServer(processedVideoFile)
 
             } else {
-                uploadVideoResultLiveData.postValue(false)
             }
         }
         private fun getTempFilePath(context: Context): String {
@@ -207,19 +193,20 @@ object VideoUtils {
                     if (response.isSuccessful) {
                         val responseBody = response.body()
                         showToast(context,"Video subido exitosamente al servidor.")
-                        loadVideoResultLiveData.postValue(false)
-                        uploadVideoResultLiveData.postValue(true)
+                        viewModel.loading.value = false
+                        viewModel.loaded.value = true
                     }
                     else {
                         showToast(context,"Error al subir el video al servidor.")
-                        uploadVideoResultLiveData.postValue(false)
+                        viewModel.loaded.value = false
                     }
                 }
 
                 override fun onFailure(call: Call<MainActivity.YourResponseModelVideo>, t: Throwable) {
                     showToast(context,"Error en la solicitud al servidor: ${t.message}.")
                     Log.e("UploadVideo", "Error en la solicitud al servidor: ${t.message}", t)
-                    uploadVideoResultLiveData.postValue(false)
+                    viewModel.loaded.value = false // El valor de loaded es true
+
                 }
             }
 

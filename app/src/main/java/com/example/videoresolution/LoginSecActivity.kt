@@ -15,6 +15,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,12 +29,13 @@ class LoginSecActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var itemAdapter: ItemAdapter
-
+    private lateinit var viewModel: MyViewModel
 
     class MyDialogFragment : DialogFragment() {
 
         private lateinit var imageViewStatus: ImageView
         private lateinit var progressBar: ProgressBar
+
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             return activity?.let {
@@ -88,6 +90,8 @@ class LoginSecActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_sec)
 
+        viewModel = ViewModelProvider(this).get(MyViewModel::class.java)
+
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
@@ -105,8 +109,6 @@ class LoginSecActivity : AppCompatActivity() {
             runOnUiThread {
                 itemAdapter = ItemAdapter(this@LoginSecActivity, videos) { position ->
                     val clickedItem = videos[position]
-
-
                     val outputFilePath: String = clickedItem.outputFilePath!!
                     val startTime: Int = clickedItem.startTime!!
                     val endTime: Int = clickedItem.endTime!!
@@ -118,7 +120,8 @@ class LoginSecActivity : AppCompatActivity() {
                     // Llama a uploadVideo en el ItemAdapter
                     Log.d("MainActivityVideos", "The position selected is $position")
                     showToast(this@LoginSecActivity, "Subiendo el video: ${clickedItem.nameVideo}.")
-                    itemAdapter.uploadVideo(this@LoginSecActivity, position, applicationContext, outputFilePath, startTime, endTime, originalPath, width, height, fps)
+
+                    itemAdapter.uploadVideo(this@LoginSecActivity, position, applicationContext, outputFilePath, startTime, endTime, originalPath, width, height, fps, viewModel)
 
                 }
                 recyclerView.adapter = itemAdapter

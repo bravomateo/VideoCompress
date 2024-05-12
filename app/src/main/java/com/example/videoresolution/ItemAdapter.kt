@@ -8,7 +8,10 @@ import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStoreOwner
 import androidx.recyclerview.widget.RecyclerView
+import com.example.videoresolution.MyViewModel
 import com.example.videoresolution.R
 import com.example.videoresolution.Video
 import com.example.videoresolution.VideoState
@@ -22,8 +25,7 @@ class ItemAdapter(
     private val onButtonClick: (Int) -> Unit
 ) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
-
-    private val videoStates: MutableMap<Int, VideoState> = mutableMapOf()
+        private val videoStates: MutableMap<Int, VideoState> = mutableMapOf()
 
     init {
         loadVideoStates()
@@ -52,6 +54,8 @@ class ItemAdapter(
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+
+
         val item = videos[position]
         holder.farmTextView.text = "Finca: " + " " + item.farm
         holder.blockTextView.text = "Bloque: " + item.block
@@ -95,8 +99,7 @@ class ItemAdapter(
             }
 
             else -> {
-                //holder.button.visibility = View.VISIBLE
-                //holder.progressBar.visibility = View.GONE
+
             }
         }
 
@@ -121,11 +124,10 @@ class ItemAdapter(
     }
 
     private fun updateVideoState(position: Int, state: VideoState) {
-        //Log.d("ItemAdapterFunction", "Updating video state at position $position to $state")
         videoStates[position] = state
         saveVideoStates()
         notifyDataSetChanged()
-        //Log.d("ItemAdapterFunction", "Video state updated successfully at position $position")
+
     }
 
     private fun saveVideoStates() {
@@ -149,10 +151,11 @@ class ItemAdapter(
         originalPath: String,
         width: String,
         height: String,
-        fps: String
+        fps: String,
+        viewModel: MyViewModel
     ) {
 
-        VideoUtils.VideoConversionTaskClass(context, outputFilePath, startTime, endTime)
+        VideoUtils.VideoConversionTaskClass(context, outputFilePath, startTime, endTime, viewModel)
             .execute(
                 originalPath,
                 outputFilePath,
@@ -161,29 +164,22 @@ class ItemAdapter(
                 fps
             )
 
-        val uploadVideoResultLiveData = VideoUtils.getUploadVideoResultLiveData()
-        val loadVideoResultLiveData = VideoUtils.getLoadVideoResultLiveData()
 
-        // Eliminar el observador anterior antes de agregar uno nuevo
-        uploadVideoResultLiveData.removeObservers(lifecycleOwner)
-        loadVideoResultLiveData.removeObservers(lifecycleOwner)
-
-        uploadVideoResultLiveData.observe(lifecycleOwner) { isUploaded ->
-            if (isUploaded) {
+        viewModel.loaded.observe(lifecycleOwner, Observer { loaded ->
+            if (loaded) {
                 updateVideoState(position, VideoState.UPLOAD_SUCCESS)
             } else {
                 updateVideoState(position, VideoState.UPLOAD_FAILED)
             }
-            Log.d("ItemAdapter", "uploadVideoResultLiveData emitted: $isUploaded")
-        }
+            Log.d("ItemAdapter", "uploadVideoResultLiveData emitted: $loaded")
+        })
 
-        loadVideoResultLiveData.observe(lifecycleOwner) { isLoaded ->
-            if (isLoaded) {
+        viewModel.loading.observe(lifecycleOwner, Observer { loading ->
+            if (loading) {
                 updateVideoState(position, VideoState.UPLOADING)
-                Log.d("ItemAdapter", "loadVideoResultLiveData emitted: $isLoaded")
+                Log.d("ItemAdapter", "loadVideoResultLiveData emitted: $loading")
             }
-        }
+        })
+
     }
-
-
 }

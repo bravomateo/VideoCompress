@@ -411,10 +411,10 @@ class MainActivity : AppCompatActivity() {
     object RetrofitClient {
         // Samsung WIFI
 
-        //private const val BASE_URL_UPLOAD = "http://192.168.10.45:8000"
+        //private const val BASE_URL_UPLOAD = "http://192.168.206.45:8000"
 
         // Home WIFI
-        private const val BASE_URL_UPLOAD = "http://192.168.58.105:8000"
+        private const val BASE_URL_UPLOAD = "http://192.168.58.104:8000"
 
         private const val BASE_URL_GET = "http://10.1.2.22:544"
 
