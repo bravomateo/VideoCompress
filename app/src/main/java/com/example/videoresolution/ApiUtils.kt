@@ -50,43 +50,10 @@ object ApiUtils {
         })
     }
 
-
-    fun getAndSetBlocksDropdown(context: Context, dropdown: AutoCompleteTextView) {
-        val blocksCall = MainActivity.RetrofitClient.instanceForGet.getBlocks()
-
-        blocksCall.enqueue(object : Callback<List<BlockItem>> {
-            override fun onResponse(call: Call<List<BlockItem>>, response: Response<List<BlockItem>>) {
-                if (response.isSuccessful) {
-                    val blocksList = response.body()
-
-                    if (blocksList != null) {
-                        showToastCustom(context, "Bloques obtenidos.")
-                        val blockNumbers = blocksList.map { block -> block.blockNumber }.toTypedArray()
-
-                        val adapter = ArrayAdapter(
-                            context,
-                            R.layout.list_item,
-                            blockNumbers
-                        )
-                        dropdown.setAdapter(adapter)
-                    }
-                } else {
-                    showToastCustom(context, "Error al obtener bloques del servidor. Código: ${response.code()}.")
-                }
-            }
-
-            override fun onFailure(call: Call<List<BlockItem>>, t: Throwable) {
-                showToastCustom(context, "Error en la solicitud de bloques: ${t.message}.")
-                Log.e("GetBlocks", "Error en la solicitud al servidor de bloques: ${t.message}", t)
-            }
-        })
-    }
-
-
     fun setBlocksDropdown(context: Context, dropdown: AutoCompleteTextView, blockNumbers: Array<String>) {
         val adapter = ArrayAdapter(
             context,
-            android.R.layout.simple_dropdown_item_1line,
+            R.layout.list_item,
             blockNumbers
         )
         dropdown.setAdapter(adapter)

@@ -4,4 +4,20 @@
         <item name="android:textColor">@color/black</item>
         <item name="android:typeface">@font/sf_ro_display_regular</item>
     </style>
+
+    <style name="DialogPositiveButton" parent="Widget.AppCompat.Button.Colored">
+        <item name="android:textColor">@color/green</item>
+        <item name="android:fontFamily">@font/sf_pro_display_bold</item>
+        <item name="android:backgroundTint">@color/white</item>
+    </style>
+
+
+    <style name="CustomDialogTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="buttonBarPositiveButtonStyle">@style/DialogPositiveButton</item>
+        <item name="android:background">@color/white</item>
+    </style>
+
+
+
 </resources>
+

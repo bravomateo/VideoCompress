@@ -29,19 +29,18 @@ class LoginSecActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
     private lateinit var itemAdapter: ItemAdapter
-
-    private val viewModel = ViewModelProvider(this)[VideoViewModel::class.java]
-
-    val videoStates: MutableMap<Int, VideoState> = mutableMapOf()
+    private lateinit var viewModel: MyViewModel
 
     class MyDialogFragment : DialogFragment() {
 
         private lateinit var imageViewStatus: ImageView
         private lateinit var progressBar: ProgressBar
 
+
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             return activity?.let {
-                val builder = AlertDialog.Builder(it)
+
+                val builder = AlertDialog.Builder(it, R.style.CustomDialogTheme)
                 val inflater = requireActivity().layoutInflater
                 val view = inflater.inflate(R.layout.dialog_block_status, null)
 
@@ -67,18 +66,18 @@ class LoginSecActivity : AppCompatActivity() {
             imageViewStatus?.setImageResource(
                 when (status) {
                     ApiUtils.BlockRequestStatus.LOADING -> {
-                        imageViewStatus.visibility = View.INVISIBLE // Ocultar la imagen
-                        progressBar.visibility = View.VISIBLE // Mostrar la barra de progreso
-                        R.drawable.load // No importa qué imagen se establece aquí, ya que se oculta
+                        imageViewStatus.visibility = View.INVISIBLE
+                        progressBar.visibility = View.VISIBLE
+                        R.drawable.load
                     }
                     ApiUtils.BlockRequestStatus.SUCCESS -> {
-                        imageViewStatus.visibility = View.VISIBLE // Mostrar la imagen
-                        progressBar.visibility = View.INVISIBLE // Ocultar la barra de progreso
+                        imageViewStatus.visibility = View.VISIBLE
+                        progressBar.visibility = View.INVISIBLE
                         R.drawable.check
                     }
                     ApiUtils.BlockRequestStatus.ERROR -> {
-                        imageViewStatus.visibility = View.VISIBLE // Mostrar la imagen
-                        progressBar.visibility = View.INVISIBLE // Ocultar la barra de progreso
+                        imageViewStatus.visibility = View.VISIBLE
+                        progressBar.visibility = View.INVISIBLE
                         R.drawable.error
                     }
                 }
@@ -87,10 +86,14 @@ class LoginSecActivity : AppCompatActivity() {
 
     }
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_sec)
 
+        viewModel = ViewModelProvider(this).get(MyViewModel::class.java)
+
+        val blocksListGet = intent.getStringArrayExtra("blocksList")?.mapNotNull { it }?.toTypedArray() ?: arrayOf()
 
 
         recyclerView = findViewById(R.id.recyclerView)
@@ -104,11 +107,10 @@ class LoginSecActivity : AppCompatActivity() {
         val videoDao = db.videoDao()
 
         lifecycleScope.launch(Dispatchers.IO) {
-            val videoStates: MutableMap<Int, VideoState> = mutableMapOf()
             val videos = videoDao.getAll()
 
             runOnUiThread {
-                itemAdapter = ItemAdapter(this@LoginSecActivity, videoStates, viewModel, videos) { position ->
+                itemAdapter = ItemAdapter(this@LoginSecActivity, videos) { position ->
                     val clickedItem = videos[position]
                     val outputFilePath: String = clickedItem.outputFilePath!!
                     val startTime: Int = clickedItem.startTime!!
@@ -119,10 +121,9 @@ class LoginSecActivity : AppCompatActivity() {
                     val fps: String = clickedItem.fps!!
 
                     Log.d("MainActivityVideos", "The position selected is $position")
-
                     showToast(this@LoginSecActivity, "Subiendo el video: ${clickedItem.nameVideo}.")
 
-                    itemAdapter.uploadVideo(position, applicationContext, outputFilePath, startTime, endTime, originalPath, width, height, fps, viewModel)
+                    itemAdapter.uploadVideo(this@LoginSecActivity, position, applicationContext, outputFilePath, startTime, endTime, originalPath, width, height, fps, viewModel)
 
                 }
                 recyclerView.adapter = itemAdapter
@@ -130,9 +131,10 @@ class LoginSecActivity : AppCompatActivity() {
         }
 
 
-        val blocksList = mutableListOf<String>()
+        val blocksList = blocksListGet?.toMutableList() ?: mutableListOf()
 
         val fabSyncButton: FloatingActionButton = findViewById(R.id.floatingActionButtonSync)
+
         fabSyncButton.setOnClickListener {
 
             val dialogFragment = MyDialogFragment()
@@ -172,6 +174,7 @@ class LoginSecActivity : AppCompatActivity() {
                 showToast(this, "Sincronizar para añadir un video.")
             }
         }
+
     }
 
     private fun showToast(context: Context, msg: String?) {

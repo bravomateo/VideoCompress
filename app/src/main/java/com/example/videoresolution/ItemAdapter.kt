@@ -1,4 +1,5 @@
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -6,32 +7,28 @@ import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
+import com.example.videoresolution.MyViewModel
 import com.example.videoresolution.R
 import com.example.videoresolution.Video
 import com.example.videoresolution.VideoState
 import com.example.videoresolution.VideoUtils
-import com.example.videoresolution.VideoViewModel
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
 class ItemAdapter(
     private val context: Context,
-    private val videoStates: MutableMap<Int, VideoState>,
-    private val viewModel: VideoViewModel,
     private val videos: List<Video>,
-    private val onButtonClick: (Int) -> Unit,
-
+    private val onButtonClick: (Int) -> Unit
 ) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
+    private val videoStates: MutableMap<Int, VideoState> = mutableMapOf()
 
     init {
         loadVideoStates()
-        viewModel.videoStates.observeForever { videoStates ->
-            videoStates.forEach { (position, state) ->
-                notifyItemChanged(position)
-            }
+        videos.forEachIndexed { index, _ ->
+            videoStates.getOrPut(index) { VideoState.READY_TO_CONVERT }
         }
     }
 
@@ -46,7 +43,6 @@ class ItemAdapter(
             videoStates.putAll(Gson().fromJson(json, type))
         }
     }
-
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -101,6 +97,7 @@ class ItemAdapter(
             }
 
             else -> {
+
             }
         }
 
@@ -124,8 +121,26 @@ class ItemAdapter(
         val buttonError: ImageButton = itemView.findViewById(R.id.ErrorUploadVideo)
     }
 
+    private fun updateVideoState(position: Int, state: VideoState) {
+        videoStates[position] = state
+        saveVideoStates()
+        notifyDataSetChanged()
+
+    }
+
+    private fun saveVideoStates() {
+        val sharedPref = context.getSharedPreferences(
+            "video_states_pref",
+            Context.MODE_PRIVATE
+        )
+        with(sharedPref.edit()) {
+            putString("video_states", Gson().toJson(videoStates))
+            apply()
+        }
+    }
 
     fun uploadVideo(
+        lifecycleOwner: LifecycleOwner,
         position: Int,
         context: Context,
         outputFilePath: String,
@@ -135,12 +150,10 @@ class ItemAdapter(
         width: String,
         height: String,
         fps: String,
-        viewModel: VideoViewModel
+        viewModel: MyViewModel
     ) {
 
-        viewModel.setVideoState(position, VideoState.UPLOADING)
-
-        VideoUtils.VideoConversionTaskClass(context, outputFilePath, startTime, endTime, viewModel, position)
+        VideoUtils.VideoConversionTaskClass(context, outputFilePath, startTime, endTime, viewModel)
             .execute(
                 originalPath,
                 outputFilePath,
@@ -148,5 +161,23 @@ class ItemAdapter(
                 height,
                 fps
             )
+
+
+        viewModel.loaded.observe(lifecycleOwner, Observer { loaded ->
+            if (loaded) {
+                updateVideoState(position, VideoState.UPLOAD_SUCCESS)
+            } else {
+                updateVideoState(position, VideoState.UPLOAD_FAILED)
+            }
+            Log.d("ItemAdapter", "uploadVideoResultLiveData emitted: $loaded")
+        })
+
+        viewModel.loading.observe(lifecycleOwner, Observer { loading ->
+            if (loading) {
+                updateVideoState(position, VideoState.UPLOADING)
+                Log.d("ItemAdapter", "loadVideoResultLiveData emitted: $loading")
+            }
+        })
+
     }
 }

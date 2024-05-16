@@ -27,13 +27,13 @@ object VideoUtils {
         private val outputPath: String,
         private val startTime: Int,
         private val endTime: Int,
-        private val viewModel: VideoViewModel,
-        private val position: Int,
+        private val viewModel: MyViewModel,
     ) : AsyncTask<String, Void, Int>() {
 
 
         override fun doInBackground(vararg params: String?): Int {
 
+            viewModel.loading.postValue(true)
 
             val inputPath = params[0] ?: ""
             val width = params[2] ?: ""
@@ -94,6 +94,8 @@ object VideoUtils {
 
                 val selectedBlock = "03"
                 val selectedFarm = "BC"
+
+
 
 
                 uploadInfoToServer(context,selectedFarm, selectedBlock, bed, videoName, resolution, fps, id)
@@ -189,18 +191,19 @@ object VideoUtils {
                     if (response.isSuccessful) {
                         val responseBody = response.body()
                         showToast(context,"Video subido exitosamente al servidor.")
-                        viewModel.setVideoState(position, VideoState.UPLOAD_SUCCESS)
+                        viewModel.loading.value = false
+                        viewModel.loaded.value = true
                     }
                     else {
                         showToast(context,"Error al subir el video al servidor.")
-                        viewModel.setVideoState(position, VideoState.UPLOAD_FAILED)
+                        viewModel.loaded.value = false
                     }
                 }
 
                 override fun onFailure(call: Call<MainActivity.YourResponseModelVideo>, t: Throwable) {
                     showToast(context,"Error en la solicitud al servidor: ${t.message}.")
                     Log.e("UploadVideo", "Error en la solicitud al servidor: ${t.message}", t)
-                    viewModel.setVideoState(position, VideoState.UPLOAD_FAILED)
+                    viewModel.loaded.value = false // El valor de loaded es true
 
                 }
             }

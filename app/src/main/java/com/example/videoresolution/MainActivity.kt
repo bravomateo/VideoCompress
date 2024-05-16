@@ -1,7 +1,6 @@
 package com.example.videoresolution
 
 import android.Manifest
-import android.app.ProgressDialog
 import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
@@ -10,7 +9,6 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.media.MediaMetadataRetriever
 import android.net.Uri
-import android.os.AsyncTask
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
@@ -35,20 +33,12 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
-import com.arthenica.mobileffmpeg.FFmpeg
 import com.google.gson.annotations.SerializedName
 import java.util.Calendar
-import okhttp3.MediaType
-import okhttp3.MultipartBody
-import okhttp3.RequestBody
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import retrofit2.Retrofit
 import java.io.File
 import okhttp3.OkHttpClient
 import retrofit2.converter.gson.GsonConverterFactory
-import java.util.UUID
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
@@ -79,7 +69,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         blockDropdown = findViewById(R.id.dropdown_field_blocks)
-        val blocksItems = arrayOf("No Block")
+        val blocksItems = arrayOf("Sin bloques")
         val blocksAdapter = ArrayAdapter(this, R.layout.list_item, blocksItems)
         blockDropdown.setAdapter(blocksAdapter)
 
@@ -87,15 +77,20 @@ class MainActivity : AppCompatActivity() {
             selectedBlock = blockDropdown.adapter.getItem(position).toString()
         }
 
+        // TODO : Modificar para que sea el que seleccionó el usuario
         selectedFarm = "BC"
 
 
         val blocksList = intent.getStringArrayExtra("blocksList")?.mapNotNull { it }?.toTypedArray() ?: arrayOf()
+
+
         ApiUtils.setBlocksDropdown(this, blockDropdown, blocksList)
+
 
         val listVideosButton: ImageButton = findViewById(R.id.ListVideos)
         listVideosButton.setOnClickListener {
             val intent = Intent(this, LoginSecActivity::class.java)
+            intent.putExtra("blocksList", blocksList )
             startActivity(intent)
         }
     }

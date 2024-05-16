@@ -1,14 +1,9 @@
 package com.example.videoresolution
 
-import CustomTypefaceSpan
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.content.Intent
-import android.graphics.Typeface
 import android.os.Bundle
-import android.text.Spannable
-import android.text.SpannableString
-import android.text.style.StyleSpan
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
