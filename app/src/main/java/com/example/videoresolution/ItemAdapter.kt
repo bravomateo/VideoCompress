@@ -7,9 +7,7 @@ import android.widget.ImageButton
 import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.Observer
 import androidx.recyclerview.widget.RecyclerView
-import com.example.videoresolution.MyViewModel
 import com.example.videoresolution.R
 import com.example.videoresolution.Video
 import com.example.videoresolution.VideoState
@@ -125,8 +123,15 @@ class ItemAdapter(
         videoStates[position] = state
         saveVideoStates()
         notifyDataSetChanged()
+        Log.d("ItemAdapterVideoStates", "Video States: ${videoStates.toString()}")
 
     }
+
+    fun onVideoUploaded(position: Int, success: Boolean) {
+        val newState = if (success) VideoState.UPLOAD_SUCCESS else VideoState.UPLOAD_FAILED
+        updateVideoState(position, newState)
+    }
+
 
     private fun saveVideoStates() {
         val sharedPref = context.getSharedPreferences(
@@ -150,10 +155,12 @@ class ItemAdapter(
         width: String,
         height: String,
         fps: String,
-        viewModel: MyViewModel
     ) {
 
-        VideoUtils.VideoConversionTaskClass(context, outputFilePath, startTime, endTime, viewModel)
+        // Actualizar el estado de carga del video a UPLOADING
+        updateVideoState(position, VideoState.UPLOADING)
+
+        VideoUtils.VideoConversionTaskClass(context, outputFilePath, startTime, endTime, position)
             .execute(
                 originalPath,
                 outputFilePath,
@@ -161,23 +168,6 @@ class ItemAdapter(
                 height,
                 fps
             )
-
-
-        viewModel.loaded.observe(lifecycleOwner, Observer { loaded ->
-            if (loaded) {
-                updateVideoState(position, VideoState.UPLOAD_SUCCESS)
-            } else {
-                updateVideoState(position, VideoState.UPLOAD_FAILED)
-            }
-            Log.d("ItemAdapter", "uploadVideoResultLiveData emitted: $loaded")
-        })
-
-        viewModel.loading.observe(lifecycleOwner, Observer { loading ->
-            if (loading) {
-                updateVideoState(position, VideoState.UPLOADING)
-                Log.d("ItemAdapter", "loadVideoResultLiveData emitted: $loading")
-            }
-        })
 
     }
 }

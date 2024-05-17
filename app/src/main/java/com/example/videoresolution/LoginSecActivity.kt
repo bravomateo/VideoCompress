@@ -15,7 +15,6 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -28,14 +27,13 @@ import kotlinx.coroutines.launch
 class LoginSecActivity : AppCompatActivity() {
 
     private lateinit var recyclerView: RecyclerView
-    private lateinit var itemAdapter: ItemAdapter
-    private lateinit var viewModel: MyViewModel
+    lateinit var itemAdapter: ItemAdapter
+
 
     class MyDialogFragment : DialogFragment() {
 
         private lateinit var imageViewStatus: ImageView
         private lateinit var progressBar: ProgressBar
-
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             return activity?.let {
@@ -91,8 +89,6 @@ class LoginSecActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login_sec)
 
-        viewModel = ViewModelProvider(this).get(MyViewModel::class.java)
-
         val blocksListGet = intent.getStringArrayExtra("blocksList")?.mapNotNull { it }?.toTypedArray() ?: arrayOf()
 
 
@@ -123,7 +119,7 @@ class LoginSecActivity : AppCompatActivity() {
                     Log.d("MainActivityVideos", "The position selected is $position")
                     showToast(this@LoginSecActivity, "Subiendo el video: ${clickedItem.nameVideo}.")
 
-                    itemAdapter.uploadVideo(this@LoginSecActivity, position, applicationContext, outputFilePath, startTime, endTime, originalPath, width, height, fps, viewModel)
+                    itemAdapter.uploadVideo(this@LoginSecActivity, position, this@LoginSecActivity, outputFilePath, startTime, endTime, originalPath, width, height, fps)
 
                 }
                 recyclerView.adapter = itemAdapter

@@ -1,5 +1,6 @@
 package com.example.videoresolution
 
+import MyViewModel
 import android.content.Context
 import android.os.AsyncTask
 import android.util.Log
@@ -27,13 +28,12 @@ object VideoUtils {
         private val outputPath: String,
         private val startTime: Int,
         private val endTime: Int,
-        private val viewModel: MyViewModel,
+        private val position: Int,
     ) : AsyncTask<String, Void, Int>() {
 
 
         override fun doInBackground(vararg params: String?): Int {
 
-            viewModel.loading.postValue(true)
 
             val inputPath = params[0] ?: ""
             val width = params[2] ?: ""
@@ -82,7 +82,6 @@ object VideoUtils {
 
             if (result == 0) {
 
-
                 val bed = "02"
                 val width = "720"
                 val height = "480"
@@ -94,9 +93,6 @@ object VideoUtils {
 
                 val selectedBlock = "03"
                 val selectedFarm = "BC"
-
-
-
 
                 uploadInfoToServer(context,selectedFarm, selectedBlock, bed, videoName, resolution, fps, id)
 
@@ -186,24 +182,24 @@ object VideoUtils {
 
             val call = videoService.uploadVideo(videoPart)
 
+
             call.enqueue(object : Callback<MainActivity.YourResponseModelVideo> {
                 override fun onResponse(call: Call<MainActivity.YourResponseModelVideo>, response: Response<MainActivity.YourResponseModelVideo>) {
                     if (response.isSuccessful) {
-                        val responseBody = response.body()
+                        (context as LoginSecActivity).itemAdapter.onVideoUploaded(position, true)
                         showToast(context,"Video subido exitosamente al servidor.")
-                        viewModel.loading.value = false
-                        viewModel.loaded.value = true
                     }
                     else {
+                        (context as LoginSecActivity).itemAdapter.onVideoUploaded(position, false)
                         showToast(context,"Error al subir el video al servidor.")
-                        viewModel.loaded.value = false
+
                     }
                 }
 
                 override fun onFailure(call: Call<MainActivity.YourResponseModelVideo>, t: Throwable) {
+                    (context as LoginSecActivity).itemAdapter.onVideoUploaded(position, false)
                     showToast(context,"Error en la solicitud al servidor: ${t.message}.")
                     Log.e("UploadVideo", "Error en la solicitud al servidor: ${t.message}", t)
-                    viewModel.loaded.value = false // El valor de loaded es true
 
                 }
             }
