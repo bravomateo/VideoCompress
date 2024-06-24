@@ -22,6 +22,7 @@ class ItemAdapter(
 ) : RecyclerView.Adapter<ItemAdapter.ItemViewHolder>() {
 
     private val videoStates: MutableMap<Int, VideoState> = mutableMapOf()
+    
 
     init {
         loadVideoStates()
@@ -125,6 +126,7 @@ class ItemAdapter(
         notifyDataSetChanged()
         Log.d("ItemAdapterVideoStates", "Video States: ${videoStates.toString()}")
 
+
     }
 
     fun onVideoUploaded(position: Int, success: Boolean) {
@@ -143,6 +145,17 @@ class ItemAdapter(
             apply()
         }
     }
+
+
+    fun isUploading(): Boolean {
+        for (videoState in videoStates.values) {
+            if (videoState == VideoState.UPLOADING) {
+                return true
+            }
+        }
+        return false
+    }
+
 
     fun uploadVideo(
         lifecycleOwner: LifecycleOwner,

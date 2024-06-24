@@ -95,6 +95,9 @@ class LoginSecActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
+        val fabSyncButton: FloatingActionButton = findViewById(R.id.floatingActionButtonSync)
+        val fab: FloatingActionButton = findViewById(R.id.floatingActionButtonAddVideos)
+
         val db = Room.databaseBuilder(
             applicationContext,
             AppDatabase::class.java, "database-name"
@@ -123,13 +126,20 @@ class LoginSecActivity : AppCompatActivity() {
 
                 }
                 recyclerView.adapter = itemAdapter
+
+
+                if (itemAdapter.isUploading()) {
+                    fabSyncButton.isEnabled = false
+                    fab.isEnabled = false
+                }
+
             }
         }
 
 
         val blocksList = blocksListGet?.toMutableList() ?: mutableListOf()
 
-        val fabSyncButton: FloatingActionButton = findViewById(R.id.floatingActionButtonSync)
+
 
         fabSyncButton.setOnClickListener {
 
@@ -160,7 +170,6 @@ class LoginSecActivity : AppCompatActivity() {
         }
 
 
-        val fab: FloatingActionButton = findViewById(R.id.floatingActionButtonAddVideos)
         fab.setOnClickListener {
             if (blocksList.isNotEmpty()) {
                 val intent = Intent(this, MainActivity::class.java)

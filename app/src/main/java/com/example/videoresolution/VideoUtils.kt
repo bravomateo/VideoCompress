@@ -72,7 +72,7 @@ object VideoUtils {
             val resolutionReductionCommand = arrayOf(
                 "-i", rotatedTempOutputPath,
                 "-vf", "scale=$width:$height",
-                "-b:v", "10K",
+                "-c:v", "libx264",               // Codificación H.264
                 "-an",
                 outputPath
             )
@@ -83,10 +83,10 @@ object VideoUtils {
             if (result == 0) {
 
                 val bed = "02"
-                val width = "720"
-                val height = "480"
+                val width = "1920"
+                val height = "1080"
                 val resolution = "$width x $height"
-                val fps = "15"
+                val fps = "60"
 
                 val id = UUID.randomUUID().toString()
                 val videoName = obtenerFechaYHoraActual()
