@@ -3,6 +3,14 @@ pluginManagement {
         google()
         mavenCentral()
         gradlePluginPortal()
+        maven {
+            url = uri("http://nexus.arashivision.com:9999/repository/maven-public/")
+            isAllowInsecureProtocol = true
+            credentials {
+                username = "deployment"
+                password = "test123"
+            }
+        }
     }
 }
 dependencyResolutionManagement {
@@ -10,6 +18,14 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
+        maven {
+            url = uri("http://nexus.arashivision.com:9999/repository/maven-public/")
+            isAllowInsecureProtocol = true
+            credentials {
+                username = "deployment"
+                password = "test123"
+            }
+        }
     }
 }
 

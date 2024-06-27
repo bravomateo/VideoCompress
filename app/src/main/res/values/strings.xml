@@ -1,3 +1,35 @@
 <resources>
     <string name="app_name">SICOP 2</string>
+
+
+    <string name="main_toolbar_title">SDK DEMO</string>
+    <string name="main_toast_camera_connected">Camera connected</string>
+    <string name="main_toast_camera_disconnected">Camera disconnected</string>
+    <string name="main_toast_camera_connect_error">Camera connect failed %d</string>
+    <string name="main_connect_wifi_button">Connect by WIFI</string>
+    <string name="main_disconnect_button">Disconnect by WIFI</string>
+    <string name="main_item_desc_connect">Connect/Disconnect Camera</string>
+
+    <string name="stitch_toolbar_title">HDR Stitching</string>
+    <string name="stitch_original">Original Effect</string>
+    <string name="stitch_hdr">HDR Stitching Effect</string>
+
+
+    <string name="permission_dialog_title">Permisos necesarios</string>
+    <string name="permission_dialog_message">Esta aplicación necesita permisos de almacenamiento y ubicación para funcionar correctamente. Por favor, habilite estos permisos en la configuración de la aplicación.</string>
+
+    <string name="cancel">Cancelar</string>
+    <string name="settings">Configuración</string>
+
+
+    <string name="main_toast_sd_enabled">SD card is enabled</string>
+    <string name="main_toast_sd_disabled">SD card may be some error</string>
+
+
+    <string name="live_toast_bind_mobile_network_successful">Bind mobile network successful</string>
+    <string name="live_toast_bind_mobile_network_failed">Bind mobile network failed</string>
+    <string name="live_toast_unbind_mobile_network">Unbind mobile network</string>
+    <string name="live_toast_unbind_mobile_network_when_lost">Lost mobile network, temporarily unbind</string>
+
+
 </resources>

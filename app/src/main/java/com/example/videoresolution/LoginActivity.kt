@@ -12,6 +12,7 @@ import android.widget.AutoCompleteTextView
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
+import com.example.videoresolution.insta360.activity.MainActivityInsta360
 
 class LoginActivity : AppCompatActivity() {
 
@@ -51,6 +52,14 @@ class LoginActivity : AppCompatActivity() {
 
             }
         }
+
+
+        val buttonInsta360: Button = findViewById(R.id.buttonInsta360)
+        buttonInsta360.setOnClickListener {
+            val intent = Intent(this, MainActivityInsta360::class.java)
+            startActivity(intent)
+        }
+
     }
 
     private fun showToastCustom(context: Context, msg: String?) {

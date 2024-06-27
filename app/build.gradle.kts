@@ -4,9 +4,6 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-kapt")
-
-
-
 }
 
 android {
@@ -23,6 +20,14 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    packagingOptions {
+        pickFirst("lib/x86/libc++_shared.so")
+        pickFirst("lib/x86_64/libc++_shared.so")
+        pickFirst("lib/armeabi-v7a/libc++_shared.so")
+        pickFirst("lib/arm64-v8a/libc++_shared.so")
+
+
+    }
 
     buildTypes {
         release {
@@ -44,8 +49,8 @@ android {
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.9.0")
-    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.core:core-ktx:1.13.1")
+    implementation("androidx.appcompat:appcompat:1.7.0")
     implementation("com.google.android.material:material:1.10.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.arthenica:mobile-ffmpeg-full-gpl:4.4")
@@ -54,18 +59,19 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     implementation("androidx.cardview:cardview:1.0.0")
 
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
 
 
     implementation("androidx.room:room-runtime:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
     implementation("androidx.room:room-ktx:2.6.1")
 
+    implementation("com.arashivision.sdk:sdkcamera:1.6.0")
+    implementation("com.arashivision.sdk:sdkmedia:1.6.0")
+    implementation("com.yanzhenjie.permission:x:2.0.1")
+
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    implementation("com.karumi:dexter:6.2.3")
-
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
-
 
 }
