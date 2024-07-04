@@ -9,6 +9,9 @@
     <string name="main_connect_wifi_button">Connect by WIFI</string>
     <string name="main_disconnect_button">Disconnect by WIFI</string>
     <string name="main_item_desc_connect">Connect/Disconnect Camera</string>
+    <string name="main_item_desc_camera_fun">Camera Function -- Need to connect camera first</string>
+
+    <string name="main_capture_button">Capture</string>
 
     <string name="stitch_toolbar_title">HDR Stitching</string>
     <string name="stitch_original">Original Effect</string>
@@ -31,5 +34,27 @@
     <string name="live_toast_unbind_mobile_network">Unbind mobile network</string>
     <string name="live_toast_unbind_mobile_network_when_lost">Lost mobile network, temporarily unbind</string>
 
+    <string name="capture_switch_front_sensor">Front Sensor</string>
+    <string name="capture_normal_record_start">Start Normal Record</string>
+    <string name="capture_normal_record_stop">Stop Normal Record</string>
+    <string name="capture_capture_working">Capture Working...</string>
+    <string name="capture_capture_time">CaptureTime: %s</string>
+    <string name="capture_play_local_file">Download and Play Local File</string>
+    <string name="capture_capture_count">Capture Count: %d</string>
+    <string name="capture_play_camera_file">Play Camera File</string>
+
+    <string name="capture_toolbar_title">Capture &amp; Listener</string>
+    <string name="capture_toast_sd_card_error">No SD card inserted or Not enough free space</string>
+    <string name="capture_capture_starting">Capture Starting...</string>
+    <string name="capture_capture_stopping">Capture Stopping...</string>
+    <string name="capture_capture_finished">Capture Finished</string>
+
+    <string name="capture_switch_sensor_ing">Switching Sensor</string>
+    <string name="capture_switch_sensor_success">Switch successfully</string>
+    <string name="capture_switch_sensor_failed">Switch failed</string>
+    <string name="capture_switch_sensor_camera_connect_error">Camera is not connected</string>
+
+    <string name="osc_dialog_title_downloading">Downloading Files</string>
+    <string name="osc_dialog_msg_downloading">"Total %1$d, Successful %2$d, Failed %3$d</string>
 
 </resources>

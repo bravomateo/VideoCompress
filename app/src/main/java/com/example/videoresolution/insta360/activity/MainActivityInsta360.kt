@@ -1,6 +1,7 @@
 package com.example.videoresolution.insta360.activity
 
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -40,8 +41,12 @@ class MainActivityInsta360 : BaseObserveCameraActivity() {
             InstaCameraManager.getInstance().closeCamera()
         }
 
+        // Button Capture
+        findViewById<View>(R.id.btn_capture).setOnClickListener { _ ->
+            startActivity(Intent(this@MainActivityInsta360, CaptureActivity::class.java)
+            )
+        }
     }
-
 
     private fun checkStoragePermission() {
         AndPermission.with(this)

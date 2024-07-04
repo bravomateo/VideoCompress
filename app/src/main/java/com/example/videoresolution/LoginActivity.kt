@@ -54,11 +54,6 @@ class LoginActivity : AppCompatActivity() {
         }
 
 
-        val buttonInsta360: Button = findViewById(R.id.buttonInsta360)
-        buttonInsta360.setOnClickListener {
-            val intent = Intent(this, MainActivityInsta360::class.java)
-            startActivity(intent)
-        }
 
     }
 

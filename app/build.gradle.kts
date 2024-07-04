@@ -26,7 +26,6 @@ android {
         pickFirst("lib/armeabi-v7a/libc++_shared.so")
         pickFirst("lib/arm64-v8a/libc++_shared.so")
 
-
     }
 
     buildTypes {
@@ -61,6 +60,10 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
 
+    implementation("com.afollestad.material-dialogs:core:3.3.0")
+    implementation("com.afollestad.material-dialogs:datetime:3.3.0")
+
+    implementation("com.github.jeasonlzy.okhttp-OkGo:okgo:v3.0.4")
 
     implementation("androidx.room:room-runtime:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")

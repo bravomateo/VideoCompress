@@ -33,6 +33,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
+import com.example.videoresolution.insta360.activity.MainActivityInsta360
 import com.google.gson.annotations.SerializedName
 import java.util.Calendar
 import retrofit2.Retrofit
@@ -93,6 +94,14 @@ class MainActivity : AppCompatActivity() {
             intent.putExtra("blocksList", blocksList )
             startActivity(intent)
         }
+
+        val camera360Button: ImageButton = findViewById(R.id.Camera360button)
+        camera360Button.setOnClickListener {
+            val intent = Intent(this, MainActivityInsta360::class.java)
+            startActivity(intent)
+        }
+
+
     }
     private fun checkPermissionsAndOpenFilePicker() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
