@@ -3,15 +3,15 @@
 
 
     <string name="main_toolbar_title">SDK DEMO</string>
-    <string name="main_toast_camera_connected">Camera connected</string>
+    <string name="main_toast_camera_connected">Camara conectada</string>
     <string name="main_toast_camera_disconnected">Camera disconnected</string>
     <string name="main_toast_camera_connect_error">Camera connect failed %d</string>
-    <string name="main_connect_wifi_button">Connect by WIFI</string>
-    <string name="main_disconnect_button">Disconnect by WIFI</string>
-    <string name="main_item_desc_connect">Connect/Disconnect Camera</string>
-    <string name="main_item_desc_camera_fun">Camera Function -- Need to connect camera first</string>
+    <string name="main_connect_wifi_button">Conectar</string>
+    <string name="main_disconnect_button">Desconectar</string>
+    <string name="main_item_desc_connect">Conectar/Desconectar Camara WIFI</string>
+    <string name="main_item_desc_camera_fun">Funciones de la camara</string>
 
-    <string name="main_capture_button">Capture</string>
+    <string name="main_capture_button">Capturar video</string>
 
     <string name="stitch_toolbar_title">HDR Stitching</string>
     <string name="stitch_original">Original Effect</string>
@@ -25,8 +25,8 @@
     <string name="settings">Configuración</string>
 
 
-    <string name="main_toast_sd_enabled">SD card is enabled</string>
-    <string name="main_toast_sd_disabled">SD card may be some error</string>
+    <string name="main_toast_sd_enabled">La tarjeta SD habilitada</string>
+    <string name="main_toast_sd_disabled">La tarjeta SD tiene un error</string>
 
 
     <string name="live_toast_bind_mobile_network_successful">Bind mobile network successful</string>
@@ -57,4 +57,19 @@
     <string name="osc_dialog_title_downloading">Downloading Files</string>
     <string name="osc_dialog_msg_downloading">"Total %1$d, Successful %2$d, Failed %3$d</string>
 
+
+    <!-- Play And Export Activity -->
+    <string name="play_toolbar_title">Play &amp; Export</string>
+    <string name="play_toast_empty_path">Empty path</string>
+    <string name="play_export_original">Export\nPanorama</string>
+    <string name="play_toast_load_finish">Load finish</string>
+    <string name="play_toast_fail_desc">Error code: %1$d, Message: %2$s</string>
+    <string name="preview_mode_normal">Normal</string>
+    <string name="export_dialog_stop">Stop</string>
+    <string name="export_dialog_ok">OK</string>
+    <string name="export_dialog_msg_exporting">Exporting...</string>
+    <string name="export_dialog_msg_export_success">Export successful.\nSave directory: %s</string>
+    <string name="export_dialog_msg_export_failed">Export failed(%d)</string>
+    <string name="export_dialog_msg_export_stopped">Export Stopped</string>
+    <string name="export_dialog_msg_export_progress">Export progress： %s</string>
 </resources>

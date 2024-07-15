@@ -4,42 +4,44 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
-    android:padding="40dp"
+    android:background="@color/white"
     tools:context=".MainActivity">
+
+    <ImageView
+        android:id="@+id/imageViewCapiro"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintBottom_toTopOf="@+id/textViewCaracteristicas"
+        app:layout_constraintDimensionRatio="357:120"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+
+        app:srcCompat="@drawable/capiro" />
 
     <TextView
         android:id="@+id/textViewCaracteristicas3"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="16dp"
         android:fontFamily="@font/sf_pro_display_bold"
         android:gravity="center"
         android:text="Características de video:"
         android:textColor="@color/green"
         android:textSize="16sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/bedAndFarmLayout" />
-
-    <ImageView
-        android:id="@+id/imageViewCapiro"
-        android:layout_width="310dp"
-        android:layout_height="78dp"
-        android:layout_marginTop="18dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.495"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/capiro" />
 
 
     <TextView
         android:id="@+id/textViewCaracteristicas"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="16dp"
         android:fontFamily="@font/sf_pro_display_bold"
         android:gravity="center"
         android:text="Edición de Video"
@@ -52,16 +54,17 @@
 
     <TextView
         android:id="@+id/textViewCaracteristicas2"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="26dp"
+        android:layout_marginTop="16dp"
         android:fontFamily="@font/sf_pro_display_bold"
         android:gravity="center"
         android:text="Información de video:"
         android:textColor="@color/green"
         android:textSize="16sp"
         android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.2"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewCaracteristicas" />
 
@@ -74,7 +77,6 @@
         android:backgroundTint="@color/black"
         android:hint="Bloque"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.528"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewCaracteristicas2">
 
@@ -82,50 +84,36 @@
             android:id="@+id/dropdown_field_blocks"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:dropDownHeight="260dp"
             android:fontFamily="@font/sf_ro_display_regular"
             android:inputType="none"
             android:textColor="@color/black"
-            android:dropDownHeight="260dp"
             android:textColorHighlight="@color/black" />
 
     </com.google.android.material.textfield.TextInputLayout>
 
-    <LinearLayout
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/bedAndFarmLayout"
-        android:layout_width="0dp"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="94dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="76dp"
-        android:orientation="horizontal"
-        android:padding="16dp"
+        android:layout_marginTop="16dp"
+        android:layout_weight="1"
+        android:fontFamily="@font/sf_ro_display_regular"
+        android:hint="Cama"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.704"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayoutBlock">
 
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_weight="1"
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/editTextBed"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:fontFamily="@font/sf_ro_display_regular"
-            android:hint="Cama">
+            android:gravity="center"
+            android:inputType="number|numberSigned"
+            android:textColor="@color/black" />
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/editTextBed"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:fontFamily="@font/sf_ro_display_regular"
-                android:gravity="center"
-                android:inputType="number|numberSigned"
-                android:textColor="@color/black" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-
-    </LinearLayout>
+    </com.google.android.material.textfield.TextInputLayout>
 
 
     <LinearLayout
@@ -133,17 +121,16 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="16dp"
         android:orientation="horizontal"
         android:padding="16dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewCaracteristicas3">
 
         <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
@@ -162,7 +149,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_weight="1"
@@ -181,7 +168,7 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="0dp"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:fontFamily="@font/sf_ro_display_regular"
@@ -205,7 +192,7 @@
         android:id="@+id/selectFileButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="16dp"
         android:backgroundTint="@color/green"
         android:fontFamily="@font/sf_ro_display_regular"
         android:text="Selecccionar Video"
@@ -219,14 +206,15 @@
         android:id="@+id/ListVideos"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="248dp"
-        android:layout_marginTop="632dp"
+        android:layout_marginTop="6dp"
         android:contentDescription="Description"
         android:scaleType="center"
         android:src="@drawable/volver"
         app:backgroundTint="@color/green"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.85"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/selectFileButton"
         app:maxImageSize="48dp"
         app:tint="@color/white" />
 
@@ -234,30 +222,19 @@
         android:id="@+id/Camera360button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="248dp"
-        android:layout_marginTop="704dp"
+        android:layout_marginTop="12dp"
         android:contentDescription="Description"
         android:scaleType="center"
         android:src="@drawable/insta"
         app:backgroundTint="@color/orange"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.85"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/ListVideos"
+        app:layout_constraintVertical_bias="0.0"
         app:maxImageSize="48dp"
         app:tint="@color/white" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="20dp" />
-
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_begin="20dp" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

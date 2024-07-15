@@ -24,14 +24,16 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
 
-    private companion object {
-        const val TAG = "CaptureActivity_"
-    }
+    private companion object {const val TAG = "CaptureActivity_" }
 
     private var mTvCaptureStatus: TextView? = null
+
     private var mTvCaptureTime: TextView? = null
+
     private var mTvCaptureCount: TextView? = null
-    private var mBtnPlayCameraFile: Button? = null
+
+    //private var mBtnPlayCameraFile: Button? = null
+
     private var mBtnPlayLocalFile: Button? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,12 +44,12 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
         // Relaciona la vinculación de elementos de la interfaz de usuario con variables en la clase de actividad,
         bindViews()
 
-        /*
+
         // Verifica si la camara está conectada, si no está conectada la actividad finaliza
         if (InstaCameraManager.getInstance().cameraConnectedType == InstaCameraManager.CONNECT_TYPE_NONE) {
             finish()
             return
-        }*/
+        }
 
         // Inicializa y asigna una instancia de SwitchSensorCallback, la cual se utiliza para gestionar eventos y estados relacionados con el cambio de sensor
         val switchSensorCallback = SwitchSensorCallback(this)
@@ -60,24 +62,17 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
         // Configura el botón para cambiar el modo frontal
         findViewById<View>(R.id.btn_switch_front_sensor).setOnClickListener { _ ->
             switchSensorCallback.onStart()
-            InstaCameraManager.getInstance().switchCameraMode(
-                InstaCameraManager.CAMERA_MODE_SINGLE_FRONT,
-                InstaCameraManager.FOCUS_SENSOR_FRONT,
-                switchSensorCallback
-            )
+            InstaCameraManager.getInstance().switchCameraMode(InstaCameraManager.CAMERA_MODE_SINGLE_FRONT, InstaCameraManager.FOCUS_SENSOR_FRONT, switchSensorCallback)
         }
 
         // Configura el botón para iniciar la grabación de video normal
         findViewById<View>(R.id.btn_normal_record_start).setOnClickListener { _ ->
-            if (checkSdCardEnabled()) {
-                InstaCameraManager.getInstance().startNormalRecord()
-            }
+            if (checkSdCardEnabled()) {InstaCameraManager.getInstance().startNormalRecord()}
+            InstaCameraManager.getInstance().startNormalRecord()
         }
 
         // Configura el botón para detener la grabación de video normal
-        findViewById<View>(R.id.btn_normal_record_stop).setOnClickListener { _ ->
-            InstaCameraManager.getInstance().stopNormalRecord()
-        }
+        findViewById<View>(R.id.btn_normal_record_stop).setOnClickListener { _ -> InstaCameraManager.getInstance().stopNormalRecord()}
 
         // Capture Status Callback
         InstaCameraManager.getInstance().setCaptureStatusListener(this)
@@ -87,7 +82,7 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
         mTvCaptureStatus   = findViewById(R.id.tv_capture_status)         // show capture status
         mTvCaptureTime     = findViewById(R.id.tv_capture_time)           // show elapsed time during a capture
         mTvCaptureCount    = findViewById(R.id.tv_capture_count)          // show the number of captures made.
-        mBtnPlayCameraFile = findViewById(R.id.btn_play_camera_file)      // play captured files directly from the camera
+        //mBtnPlayCameraFile = findViewById(R.id.btn_play_camera_file)      // play captured files directly from the camera
         mBtnPlayLocalFile  = findViewById(R.id.btn_play_local_file)       // play captured files that have been saved locally on the device
 
     }
@@ -108,13 +103,12 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
 
 
     // Asegura que CaptureActivity se cierre automáticamente si la cámara se desconecta
-    /*
     override fun onCameraStatusChanged(enabled: Boolean) {
         super.onCameraStatusChanged(enabled)
         if (!enabled) {
             finish()
         }
-    }*/
+    }
 
 
     // FUNCIONES DE MANEJO DE INTERFAZ
@@ -124,7 +118,7 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
         // Mostrar mensaje indicando que la captura está comenzando
         mTvCaptureStatus?.setText(R.string.capture_capture_starting)
         // Oculta los dos botones
-        mBtnPlayCameraFile?.visibility = View.GONE
+        //mBtnPlayCameraFile?.visibility = View.GONE
         mBtnPlayLocalFile?.visibility = View.GONE
     }
 
@@ -153,13 +147,13 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
         // Si filePaths no es nulo y tiene elementos,
         if (filePaths != null && filePaths.isNotEmpty()) {
             // Hace visible el boton Play Camera File
-            mBtnPlayCameraFile?.visibility = View.VISIBLE
+            //mBtnPlayCameraFile?.visibility = View.VISIBLE
 
+            /*
             // Se configura su click listener para lanzar la actividad
             mBtnPlayCameraFile?.setOnClickListener {
-                //PlayAndExportActivity.launchActivity(this, filePaths)
-            }
-
+                // TODO PlayAndExportActivity.launchActivity(this, filePaths)
+            }*/
 
             // Hace visible el boton Play Local File
             mBtnPlayLocalFile?.visibility = View.VISIBLE
@@ -170,8 +164,8 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
             }
         } else {
             // Los botones se hacen invisibles y se eliminia cualquier listener
-            mBtnPlayCameraFile?.visibility = View.GONE
-            mBtnPlayCameraFile?.setOnClickListener(null)
+            //mBtnPlayCameraFile?.visibility = View.GONE
+            //mBtnPlayCameraFile?.setOnClickListener(null)
             mBtnPlayLocalFile?.visibility = View.GONE
             mBtnPlayLocalFile?.setOnClickListener(null)
         }
@@ -217,7 +211,7 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
 
         // Manejo de Descarga o Lanzamiento Directo:
         if (!needDownload) {
-            //PlayAndExportActivity.launchActivity(this, localPaths)
+            PlayAndExportActivity.launchActivity(this, localPaths)
             return
         }
 
@@ -255,7 +249,7 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
                         dialog.message(text = getString(R.string.osc_dialog_msg_downloading, urls.size, successfulCount.toInt(), errorCount.toInt()))
 
                         if (successfulCount.toInt() + errorCount.toInt() >= urls.size) {
-                            //PlayAndExportActivity.launchActivity(this@CaptureActivity, localPaths)
+                            PlayAndExportActivity.launchActivity(this@CaptureActivity, localPaths)
                             dialog.dismiss()
                         }
                     }

@@ -50,7 +50,7 @@ dependencies {
 
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.7.0")
-    implementation("com.google.android.material:material:1.10.0")
+    implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
     implementation("com.arthenica:mobile-ffmpeg-full-gpl:4.4")
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
@@ -58,12 +58,11 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-scalars:2.9.0")
     implementation("androidx.cardview:cardview:1.0.0")
 
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
-
     implementation("com.afollestad.material-dialogs:core:3.3.0")
     implementation("com.afollestad.material-dialogs:datetime:3.3.0")
 
     implementation("com.github.jeasonlzy.okhttp-OkGo:okgo:v3.0.4")
+
 
     implementation("androidx.room:room-runtime:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
@@ -72,6 +71,7 @@ dependencies {
     implementation("com.arashivision.sdk:sdkcamera:1.6.0")
     implementation("com.arashivision.sdk:sdkmedia:1.6.0")
     implementation("com.yanzhenjie.permission:x:2.0.1")
+
 
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
