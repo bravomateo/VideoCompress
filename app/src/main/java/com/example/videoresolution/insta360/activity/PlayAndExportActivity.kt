@@ -5,7 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.os.Environment
-import android.view.MotionEvent
+
 import android.view.View
 import android.widget.RadioButton
 import android.widget.RadioGroup
@@ -19,19 +19,12 @@ import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.WhichButton
 import com.afollestad.materialdialogs.actions.getActionButton
 
-
-
 import com.arashivision.sdkmedia.export.ExportUtils
 import com.arashivision.sdkmedia.export.ExportVideoParamsBuilder
 import com.arashivision.sdkmedia.export.IExportCallback
-import com.arashivision.sdkmedia.player.listener.PlayerGestureListener
-import com.arashivision.sdkmedia.player.listener.PlayerViewListener
-import com.arashivision.sdkmedia.player.listener.VideoStatusListener
-import com.arashivision.sdkmedia.player.video.InstaVideoPlayerView
-import com.arashivision.sdkmedia.player.video.VideoParamsBuilder
+
 import com.arashivision.sdkmedia.work.WorkWrapper
 import com.example.videoresolution.R
-import com.example.videoresolution.insta360.util.TimeFormat
 
 import java.util.Locale
 
@@ -49,13 +42,14 @@ class PlayAndExportActivity : BaseObserveCameraActivity(), IExportCallback {
         }
     }
 
-    private lateinit var mVideoPlayerView: InstaVideoPlayerView
+    //private lateinit var mVideoPlayerView: InstaVideoPlayerView
     private lateinit var mRbNormal: RadioButton
     private lateinit var mGroupProgress: Group
     private lateinit var mTvCurrent: TextView
     private lateinit var mTvTotal: TextView
     private lateinit var mSeekBar: SeekBar
     private lateinit var mWorkWrapper: WorkWrapper
+
 
     private var mExportDialog: MaterialDialog? = null
     private var mCurrentExportId: Int = -1
@@ -81,13 +75,15 @@ class PlayAndExportActivity : BaseObserveCameraActivity(), IExportCallback {
         // playVideo(false)
 
         findViewById<View>(R.id.btn_export_original).setOnClickListener {
-            exportVideoOriginal()
+            if(mWorkWrapper.isVideo) {
+                exportVideoOriginal()
+            }
             showExportDialog()
         }
     }
 
     private fun bindViews() {
-        mVideoPlayerView = findViewById(R.id.player_video)
+        // mVideoPlayerView = findViewById(R.id.player_video)
         mGroupProgress = findViewById(R.id.group_progress)
         mTvCurrent = findViewById(R.id.tv_current)
         mTvTotal = findViewById(R.id.tv_total)
@@ -97,10 +93,13 @@ class PlayAndExportActivity : BaseObserveCameraActivity(), IExportCallback {
 
             override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {}
 
-            override fun onStartTrackingTouch(seekBar: SeekBar) {mVideoPlayerView.pause()}
+            override fun onStartTrackingTouch(seekBar: SeekBar) {
+                //mVideoPlayerView.pause()
+            }
 
-            override fun onStopTrackingTouch(seekBar: SeekBar) {mVideoPlayerView?.seekTo(seekBar.progress.toLong())}
-
+            override fun onStopTrackingTouch(seekBar: SeekBar) {
+                // mVideoPlayerView?.seekTo(seekBar.progress.toLong())
+            }
         })
 
         mRbNormal = findViewById(R.id.rb_normal)
@@ -108,7 +107,7 @@ class PlayAndExportActivity : BaseObserveCameraActivity(), IExportCallback {
         findViewById<RadioGroup>(R.id.rg_image_mode).setOnCheckedChangeListener { _, checkedId ->
             if (checkedId == R.id.rb_normal) {
                 //playVideo(false)
-                mVideoPlayerView.switchNormalMode()
+                //mVideoPlayerView.switchNormalMode()
             }
         }
 
@@ -247,6 +246,6 @@ class PlayAndExportActivity : BaseObserveCameraActivity(), IExportCallback {
 
     override fun onDestroy() {
         super.onDestroy()
-        mVideoPlayerView.destroy()
+        //mVideoPlayerView.destroy()
     }
 }

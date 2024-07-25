@@ -13,8 +13,7 @@ import com.arashivision.sdkcamera.camera.InstaCameraManager
 import com.example.videoresolution.R
 import com.example.videoresolution.insta360.util.CameraBindNetworkManager
 import com.example.videoresolution.insta360.util.NetworkManager
-import com.yanzhenjie.permission.AndPermission
-import com.yanzhenjie.permission.runtime.Permission
+
 
 class MainActivityInsta360 : BaseObserveCameraActivity() {
 
@@ -28,32 +27,33 @@ class MainActivityInsta360 : BaseObserveCameraActivity() {
         setContentView(R.layout.activity_main_insta360)
         setTitle(R.string.main_toolbar_title)
 
+
         if (!checkPermission()) {
             requestPermission()
-        } else {
+        }
 
-            if (InstaCameraManager.getInstance().cameraConnectedType != InstaCameraManager.CONNECT_TYPE_NONE) {
-                onCameraStatusChanged(true)
-            }
 
-            // Button Connect WIFI
-            findViewById<View>(R.id.btn_connect_by_wifi).setOnClickListener {
-                CameraBindNetworkManager.getInstance().bindNetwork { _ ->
-                    InstaCameraManager.getInstance().openCamera(InstaCameraManager.CONNECT_TYPE_WIFI)
-                }
-            }
+        if (InstaCameraManager.getInstance().cameraConnectedType != InstaCameraManager.CONNECT_TYPE_NONE) {
+            onCameraStatusChanged(true)
+        }
 
-            // Button Disconnect
-            findViewById<View>(R.id.btn_close_camera).setOnClickListener {
-                CameraBindNetworkManager.getInstance().unbindNetwork()
-                InstaCameraManager.getInstance().closeCamera()
+        // Button Connect WIFI
+        findViewById<View>(R.id.btn_connect_by_wifi).setOnClickListener {
+            CameraBindNetworkManager.getInstance().bindNetwork { _ ->
+                InstaCameraManager.getInstance().openCamera(InstaCameraManager.CONNECT_TYPE_WIFI)
             }
+        }
 
-            // Button Capture
-            findViewById<View>(R.id.btn_capture).setOnClickListener { _ ->
-                startActivity(Intent(this@MainActivityInsta360, CaptureActivity::class.java)
-                )
-            }
+        // Button Disconnect
+        findViewById<View>(R.id.btn_close_camera).setOnClickListener {
+            CameraBindNetworkManager.getInstance().unbindNetwork()
+            InstaCameraManager.getInstance().closeCamera()
+        }
+
+        // Button Capture
+        findViewById<View>(R.id.btn_capture).setOnClickListener { _ ->
+            startActivity(Intent(this@MainActivityInsta360, CaptureActivity::class.java)
+            )
         }
 
     }
@@ -72,9 +72,7 @@ class MainActivityInsta360 : BaseObserveCameraActivity() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == PERMISSION_REQUEST_CODE) {
             if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED) {
-                Toast.makeText(this, "Permiso Concedido", Toast.LENGTH_SHORT).show()
             } else {
-                Toast.makeText(this, "Permiso Denegado", Toast.LENGTH_SHORT).show()
             }
         }
 

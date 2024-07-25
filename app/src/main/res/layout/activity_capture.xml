@@ -19,14 +19,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.02">
 
-        <Button
-            android:id="@+id/btn_switch_front_sensor"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:fontFamily="@font/sf_pro_display_bold"
-            android:text="@string/capture_switch_front_sensor"
-            android:textAllCaps="false"
-            android:textColor="@color/white" />
+
     </LinearLayout>
 
 
@@ -141,7 +134,7 @@
         app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_capture_count"
-        app:layout_constraintVertical_bias="0.02"
+        app:layout_constraintVertical_bias="0.05"
         tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
