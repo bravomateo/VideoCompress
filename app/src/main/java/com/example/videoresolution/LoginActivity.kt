@@ -52,19 +52,15 @@ class LoginActivity : AppCompatActivity() {
 
             }
         }
-
-
-
     }
 
     private fun showToastCustom(context: Context, msg: String?) {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val view: View = inflater.inflate(R.layout.custom_toast,null)
-
-        val txtMensaje = view.findViewById<TextView>(R.id.txtMensajeToast1)
-        txtMensaje.text = msg
-
+        val view: View = inflater.inflate(R.layout.custom_toast, null)
+        val txtMessage = view.findViewById<TextView>(R.id.txtMensajeToast1)
         val toast = Toast(context)
+
+        txtMessage.text = msg
         toast.setGravity(Gravity.CENTER_VERTICAL or Gravity.BOTTOM, 0, 200)
         toast.duration = Toast.LENGTH_LONG
         toast.view = view

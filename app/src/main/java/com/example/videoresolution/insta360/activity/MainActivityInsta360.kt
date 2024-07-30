@@ -14,46 +14,51 @@ import com.example.videoresolution.R
 import com.example.videoresolution.insta360.util.CameraBindNetworkManager
 import com.example.videoresolution.insta360.util.NetworkManager
 
-
 class MainActivityInsta360 : BaseObserveCameraActivity() {
 
-    companion object {
-        private const val PERMISSION_REQUEST_CODE = 100
-    }
+    companion object {private const val PERMISSION_REQUEST_CODE = 100}
+
+    private lateinit var selectedFarm: String
+    private lateinit var selectedBlock: String
+    private lateinit var selectedBed: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
-
-
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main_insta360)
         setTitle(R.string.main_toolbar_title)
 
+        selectedFarm = intent.getStringExtra("selectedFarm") ?: ""
+        selectedBlock = intent.getStringExtra("selectedBlock") ?: ""
+        selectedBed = intent.getStringExtra("selectedBed") ?: ""
 
-        if (!checkPermission()) {
-            requestPermission()
-        }
+        if (!checkPermission()) {requestPermission()}
 
+        if (InstaCameraManager.getInstance().cameraConnectedType != InstaCameraManager.CONNECT_TYPE_NONE) {onCameraStatusChanged(true)}
 
-        if (InstaCameraManager.getInstance().cameraConnectedType != InstaCameraManager.CONNECT_TYPE_NONE) {
-            onCameraStatusChanged(true)
-        }
-
-        // Button Connect WIFI
         findViewById<View>(R.id.btn_connect_by_wifi).setOnClickListener {
             CameraBindNetworkManager.getInstance().bindNetwork { _ ->
                 InstaCameraManager.getInstance().openCamera(InstaCameraManager.CONNECT_TYPE_WIFI)
             }
         }
 
-        // Button Disconnect
         findViewById<View>(R.id.btn_close_camera).setOnClickListener {
             CameraBindNetworkManager.getInstance().unbindNetwork()
             InstaCameraManager.getInstance().closeCamera()
         }
 
-        // Button Capture
+
+        /*
         findViewById<View>(R.id.btn_capture).setOnClickListener { _ ->
             startActivity(Intent(this@MainActivityInsta360, CaptureActivity::class.java)
             )
+        }*/
+
+        findViewById<View>(R.id.btn_capture).setOnClickListener { _ ->
+            val intent = Intent(this@MainActivityInsta360, CaptureActivity::class.java)
+            intent.putExtra("selectedFarm", selectedFarm)
+            intent.putExtra("selectedBlock", selectedBlock)
+            intent.putExtra("selectedBed", selectedBed)
+            startActivity(intent)
         }
 
     }

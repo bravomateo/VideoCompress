@@ -29,7 +29,6 @@ class LoginSecActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     lateinit var itemAdapter: ItemAdapter
 
-
     class MyDialogFragment : DialogFragment() {
 
         private lateinit var imageViewStatus: ImageView
@@ -53,12 +52,10 @@ class LoginSecActivity : AppCompatActivity() {
                 builder.create()
             } ?: throw IllegalStateException("Activity cannot be null")
         }
-
         override fun onResume() {
             super.onResume()
             updateStatus(ApiUtils.BlockRequestStatus.LOADING)
         }
-
         fun updateStatus(status: ApiUtils.BlockRequestStatus) {
             val imageViewStatus = dialog?.findViewById<ImageView>(R.id.imageViewStatus)
             imageViewStatus?.setImageResource(
@@ -90,7 +87,7 @@ class LoginSecActivity : AppCompatActivity() {
         setContentView(R.layout.activity_login_sec)
 
         val blocksListGet = intent.getStringArrayExtra("blocksList")?.mapNotNull { it }?.toTypedArray() ?: arrayOf()
-
+        val selectedFarmGet = intent.getStringExtra("selectedFarm")
 
         recyclerView = findViewById(R.id.recyclerView)
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -98,11 +95,7 @@ class LoginSecActivity : AppCompatActivity() {
         val fabSyncButton: FloatingActionButton = findViewById(R.id.floatingActionButtonSync)
         val fab: FloatingActionButton = findViewById(R.id.floatingActionButtonAddVideos)
 
-        val db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "database-name"
-        ).build()
-
+        val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "database-name").build()
         val videoDao = db.videoDao()
 
         lifecycleScope.launch(Dispatchers.IO) {
@@ -132,13 +125,11 @@ class LoginSecActivity : AppCompatActivity() {
                     fabSyncButton.isEnabled = false
                     fab.isEnabled = false
                 }
-
             }
         }
 
 
         val blocksList = blocksListGet?.toMutableList() ?: mutableListOf()
-
 
 
         fabSyncButton.setOnClickListener {
@@ -174,6 +165,7 @@ class LoginSecActivity : AppCompatActivity() {
             if (blocksList.isNotEmpty()) {
                 val intent = Intent(this, MainActivity::class.java)
                 intent.putExtra("blocksList", blocksList.toTypedArray())
+                intent.putExtra("selectedFarm", selectedFarmGet)
                 startActivity(intent)
             } else {
                 showToast(this, "Sincronizar para añadir un video.")
@@ -181,7 +173,6 @@ class LoginSecActivity : AppCompatActivity() {
         }
 
     }
-
     private fun showToast(context: Context, msg: String?) {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view: View = inflater.inflate(R.layout.custom_toast,null)
@@ -196,5 +187,4 @@ class LoginSecActivity : AppCompatActivity() {
         toast.show()
 
     }
-
 }

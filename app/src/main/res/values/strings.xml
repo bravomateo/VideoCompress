@@ -54,8 +54,8 @@
     <string name="capture_switch_sensor_failed">Switch failed</string>
     <string name="capture_switch_sensor_camera_connect_error">Camera is not connected</string>
 
-    <string name="osc_dialog_title_downloading">Downloading Files</string>
-    <string name="osc_dialog_msg_downloading">"Total %1$d, Successful %2$d, Failed %3$d</string>
+    <string name="osc_dialog_title_downloading">Descargando Archivos</string>
+    <string name="osc_dialog_msg_downloading">"Total %1$d, Correctos %2$d, Fallidos %3$d</string>
 
 
     <!-- Play And Export Activity -->

@@ -8,6 +8,9 @@ import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
 import com.afollestad.materialdialogs.MaterialDialog
+import com.afollestad.materialdialogs.customview.customView
+import com.afollestad.materialdialogs.customview.getCustomView
+
 import com.arashivision.sdkcamera.camera.InstaCameraManager
 import com.arashivision.sdkcamera.camera.callback.ICaptureStatusListener
 import com.example.videoresolution.R
@@ -21,16 +24,23 @@ import java.util.concurrent.atomic.AtomicInteger
 class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
 
 
-
     private var mTvCaptureStatus: TextView? = null
     private var mTvCaptureTime: TextView? = null
     private var mTvCaptureCount: TextView? = null
     private var mBtnPlayLocalFile: Button? = null
 
+    private lateinit var selectedFarm: String
+    private lateinit var selectedBlock: String
+    private lateinit var selectedBed: String
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_capture)
         setTitle(R.string.capture_toolbar_title)
+
+        selectedFarm = intent.getStringExtra("selectedFarm") ?: ""
+        selectedBlock = intent.getStringExtra("selectedBlock") ?: ""
+        selectedBed = intent.getStringExtra("selectedBed") ?: ""
 
         bindViews()
 
@@ -57,7 +67,6 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
         mBtnPlayLocalFile = findViewById(R.id.btn_play_local_file)
 
     }
-
 
     private fun checkSdCardEnabled(): Boolean {
         if (!InstaCameraManager.getInstance().isSdCardEnabled) {
@@ -94,19 +103,12 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
         mTvCaptureTime?.visibility = View.GONE
         mTvCaptureCount?.visibility = View.GONE
 
-        // Si se capturaron archivos
         if (filePaths != null && filePaths.isNotEmpty()) {
-
             mBtnPlayLocalFile?.visibility = View.VISIBLE
-
-            mBtnPlayLocalFile?.setOnClickListener{
-                downloadFilesAndPlay(filePaths)
-            }
-
-        } else { // Si no se capturaron archivos
-
+            mBtnPlayLocalFile?.setOnClickListener{downloadFilesAndPlay(filePaths)}
+        }
+        else {
             mBtnPlayLocalFile?.visibility = View.GONE
-
             mBtnPlayLocalFile?.setOnClickListener(null)
         }
     }
@@ -134,10 +136,11 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
         val localPaths = Array(urls.size) { "" }
         var needDownload = false
 
-
         for (i in urls.indices) {
-            fileNames[i] = urls[i].substring(urls[i].lastIndexOf("/") + 1)
+            val originalFileName = urls[i].substring(urls[i].lastIndexOf("/") + 1)
+            fileNames[i] = "${selectedFarm}_${selectedBlock}_${selectedBed}_${originalFileName}"
             localPaths[i] = "$localFolder/${fileNames[i]}"
+
             if (!File(localPaths[i]).exists()) {
                 needDownload = true
             }
@@ -150,47 +153,47 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
         }
 
         val dialog = MaterialDialog(this).show {
-            title(R.string.osc_dialog_title_downloading)
-            message(text = getString(R.string.osc_dialog_msg_downloading, urls.size, 0, 0))
+            customView(R.layout.dialog_progress, scrollable = true)
             cancelable(false)
             cancelOnTouchOutside(false)
         }
 
+        val dialogView = dialog.getCustomView()
+        val messageTextView = dialogView.findViewById<TextView>(R.id.dialog_message)
+
+        messageTextView.text = getString(R.string.osc_dialog_msg_downloading, urls.size, 0, 0)
+
         val successfulCount = AtomicInteger(0)
         val errorCount = AtomicInteger(0)
-
 
         for (i in localPaths.indices) {
             val url = urls[i]
             OkGo.get<File>(url).execute(object : FileCallback(localFolder, fileNames[i]) {
 
-                    override fun onError(response: Response<File>) {
-                        super.onError(response)
-                        errorCount.incrementAndGet()
-                        checkDownloadCount()
-                    }
+                override fun onError(response: Response<File>) {
+                    super.onError(response)
+                    errorCount.incrementAndGet()
+                    checkDownloadCount()
+                }
 
-                    override fun onSuccess(response: Response<File>) {
-                        successfulCount.incrementAndGet()
-                        checkDownloadCount()
-                    }
+                override fun onSuccess(response: Response<File>) {
+                    successfulCount.incrementAndGet()
+                    checkDownloadCount()
+                }
 
-                    private fun checkDownloadCount() {
-                        dialog.message(text = getString(
-                                R.string.osc_dialog_msg_downloading,
-                                urls.size,
-                                successfulCount.toInt(),
-                                errorCount.toInt()
-                            ))
-                        if (successfulCount.toInt() + errorCount.toInt() >= urls.size) {
-                            //PlayAndExportActivity.launchActivity(this@CaptureActivity, localPaths)
-                            dialog.dismiss()
-                        }
+                private fun checkDownloadCount() {
+                    val success = successfulCount.toInt()
+                    val error = errorCount.toInt()
+                    val total = urls.size
+                    val message = getString(R.string.osc_dialog_msg_downloading, total, success, error)
+
+                    runOnUiThread {messageTextView.text = message}
+
+                    if (success + error >= total) {
+                        dialog.dismiss()
                     }
-                })
+                }
+            })
         }
-
     }
-
-
 }

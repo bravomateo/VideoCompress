@@ -50,18 +50,18 @@ class MainActivity : AppCompatActivity() {
     private val REQUEST_PERMISSION_CODE = 123
     private val REQUEST_VIDEO_CODE = 456
 
-
     private lateinit var blockDropdown: AutoCompleteTextView
     private lateinit var selectedBlock: String
 
-    private lateinit var selectedFarm: String
     private var selectedOrientationDegrees = 0f
-
-
+    private var selectedFarm: String = ""
+    private var selectedBed: String = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        selectedFarm = intent.getStringExtra("selectedFarm")!!
 
 
         val selectFileButton: Button = findViewById(R.id.selectFileButton)
@@ -74,19 +74,13 @@ class MainActivity : AppCompatActivity() {
         val blocksAdapter = ArrayAdapter(this, R.layout.list_item, blocksItems)
         blockDropdown.setAdapter(blocksAdapter)
 
-        blockDropdown.setOnItemClickListener { _, _, position, _ ->
-            selectedBlock = blockDropdown.adapter.getItem(position).toString()
-        }
-
-        // TODO : Modificar para que sea el que seleccionó el usuario
-        selectedFarm = "BC"
+        blockDropdown.setOnItemClickListener { _, _, position, _ -> selectedBlock = blockDropdown.adapter.getItem(position).toString() }
 
 
         val blocksList = intent.getStringArrayExtra("blocksList")?.mapNotNull { it }?.toTypedArray() ?: arrayOf()
-
-
         ApiUtils.setBlocksDropdown(this, blockDropdown, blocksList)
 
+        selectedBed = findViewById<EditText>(R.id.editTextBed).text.toString()
 
         val listVideosButton: ImageButton = findViewById(R.id.ListVideos)
         listVideosButton.setOnClickListener {
@@ -98,30 +92,27 @@ class MainActivity : AppCompatActivity() {
         val camera360Button: ImageButton = findViewById(R.id.Camera360button)
         camera360Button.setOnClickListener {
             val intent = Intent(this, MainActivityInsta360::class.java)
+            intent.putExtra("selectedFarm", selectedFarm)
+            intent.putExtra("selectedBlock", selectedBlock)
+            intent.putExtra("selectedBed", selectedBed)
             startActivity(intent)
         }
-
 
     }
     private fun checkPermissionsAndOpenFilePicker() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ContextCompat.checkSelfPermission(
-                    this,
-                    Manifest.permission.READ_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
                 openFilePicker()
-            } else {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                    REQUEST_PERMISSION_CODE
-                )
             }
-        } else {
+            else {
+                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE), REQUEST_PERMISSION_CODE)
+            }
+        }
+        else {
             openFilePicker()
         }
     }
+
     private fun openFilePicker() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(intent, REQUEST_VIDEO_CODE)
@@ -136,12 +127,12 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == REQUEST_PERMISSION_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             openFilePicker()
             showToast(this,"Video seleccionado.")
-        } else {
+        }
+        else {
             showToast(this,"Permiso denegado. No se puede seleccionar el video.")
         }
     }
 
-    private var currentRotationDegrees = 0f
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -224,11 +215,11 @@ class MainActivity : AppCompatActivity() {
         val acceptButtonTrim = dialogView.findViewById<Button>(R.id.acceptButtonTrim)
 
         val trimSeekBar = dialogView.findViewById<SeekBar>(R.id.seekBar)
-        val progressTextView = dialogView.findViewById<TextView>(R.id.progressTextView) // Obtener referencia al TextView
-        val videoView = dialogView.findViewById<VideoView>(R.id.videoView) // Obtener referencia al VideoView
+        val progressTextView = dialogView.findViewById<TextView>(R.id.progressTextView)
+        val videoView = dialogView.findViewById<VideoView>(R.id.videoView)
 
         val trimSeekEndBar = dialogView.findViewById<SeekBar>(R.id.seekEndBar)
-        val progressEndTextView = dialogView.findViewById<TextView>(R.id.progressEndTextView) // Obtener referencia al TextView
+        val progressEndTextView = dialogView.findViewById<TextView>(R.id.progressEndTextView)
 
 
         val dialog = AlertDialog.Builder(this)
@@ -239,7 +230,7 @@ class MainActivity : AppCompatActivity() {
         val retriever = MediaMetadataRetriever()
         retriever.setDataSource(this, videoUri)
         val durationString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
-        val durationTime = durationString?.toInt() ?: 0 // Duración total del video en milisegundos
+        val durationTime = durationString?.toInt() ?: 0
 
         videoView.setVideoURI(videoUri)
         videoView.setOnPreparedListener { mp ->
@@ -264,13 +255,9 @@ class MainActivity : AppCompatActivity() {
 
         trimSeekEndBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                // Actualizar el texto del TextView con el valor actual del progreso de la barra de búsqueda
                 progressEndTextView.text = "${progress} seg"
                 val valorbuscado = durationTime - progress * 1000
-                // Imprimir el valor de endTime en el registro (log)
-                Log.d("valorbuscado", "Valor buscado final: $valorbuscado")
-                // Mover el video al segundo correspondiente al progreso de la barra de búsqueda
-                videoView.seekTo(valorbuscado) // El progreso se da en segundos, por lo que se multiplica por 1000 para convertirlo a milisegundos
+                videoView.seekTo(valorbuscado)
 
             }
 
@@ -289,31 +276,14 @@ class MainActivity : AppCompatActivity() {
             val startTime = trimSeekBar.progress
             val endTime = durationTime/1000 -trimSeekEndBar.progress
 
-            Log.d("EndTime", "Valor de endTime: $endTime")
-
             videoView.stopPlayback()
-
             showToast(this, "Video guardado exitosamente.")
 
             selectedOrientationDegrees = 0f
 
-
-
             val resolution = "$width x $height"
             val videoName = obtenerFechaYHoraActual()
-            updateInfoROOM( videoName,
-                            resolution,
-                            outputFilePath,
-                            originalPath,
-                            startTime,
-                            endTime,
-                            width,
-                            height,
-                            fps,
-                            farm,
-                            block,
-                            bed
-            )
+            updateInfoROOM(videoName, resolution, outputFilePath, originalPath, startTime, endTime, width, height, fps, farm, block, bed)
 
         }
 
@@ -414,7 +384,6 @@ class MainActivity : AppCompatActivity() {
     )
     object RetrofitClient {
         // Samsung WIFI
-
         // 192.168.242.45
         //private const val BASE_URL_UPLOAD = "http://192.168.242.45:8000"
 
