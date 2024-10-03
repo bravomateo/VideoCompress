@@ -71,9 +71,6 @@ class PlayAndExportActivity : BaseObserveCameraActivity(), IExportCallback {
         mWorkWrapper = WorkWrapper(urls)
         bindViews()
 
-        // Reproducción del video
-        // playVideo(false)
-
         findViewById<View>(R.id.btn_export_original).setOnClickListener {
             if(mWorkWrapper.isVideo) {
                 exportVideoOriginal()
@@ -83,7 +80,6 @@ class PlayAndExportActivity : BaseObserveCameraActivity(), IExportCallback {
     }
 
     private fun bindViews() {
-        // mVideoPlayerView = findViewById(R.id.player_video)
         mGroupProgress = findViewById(R.id.group_progress)
         mTvCurrent = findViewById(R.id.tv_current)
         mTvTotal = findViewById(R.id.tv_total)

@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Button
 import android.widget.Toast
@@ -13,6 +14,8 @@ import com.arashivision.sdkcamera.camera.InstaCameraManager
 import com.example.videoresolution.R
 import com.example.videoresolution.insta360.util.CameraBindNetworkManager
 import com.example.videoresolution.insta360.util.NetworkManager
+import com.example.videoresolution.videoEdit.activity.LoginSecActivity
+import com.example.videoresolution.videoEdit.activity.MainActivity
 
 class MainActivityInsta360 : BaseObserveCameraActivity() {
 
@@ -27,9 +30,14 @@ class MainActivityInsta360 : BaseObserveCameraActivity() {
         setContentView(R.layout.activity_main_insta360)
         setTitle(R.string.main_toolbar_title)
 
+        val blocksList = intent.getStringArrayExtra("blocksList")?.mapNotNull { it }?.toTypedArray() ?: arrayOf()
+
+
+
         selectedFarm = intent.getStringExtra("selectedFarm") ?: ""
         selectedBlock = intent.getStringExtra("selectedBlock") ?: ""
         selectedBed = intent.getStringExtra("selectedBed") ?: ""
+
 
         if (!checkPermission()) {requestPermission()}
 
@@ -46,18 +54,24 @@ class MainActivityInsta360 : BaseObserveCameraActivity() {
             InstaCameraManager.getInstance().closeCamera()
         }
 
+        val btnHome: Button = findViewById(R.id.btn_home_main)
 
-        /*
-        findViewById<View>(R.id.btn_capture).setOnClickListener { _ ->
-            startActivity(Intent(this@MainActivityInsta360, CaptureActivity::class.java)
-            )
-        }*/
+        btnHome.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("blocksList", blocksList )
+            intent.putExtra("selectedFarm", selectedFarm)
+            startActivity(intent)
+        }
+
+
+
 
         findViewById<View>(R.id.btn_capture).setOnClickListener { _ ->
             val intent = Intent(this@MainActivityInsta360, CaptureActivity::class.java)
             intent.putExtra("selectedFarm", selectedFarm)
             intent.putExtra("selectedBlock", selectedBlock)
             intent.putExtra("selectedBed", selectedBed)
+            intent.putExtra("blocksList", blocksList )
             startActivity(intent)
         }
 

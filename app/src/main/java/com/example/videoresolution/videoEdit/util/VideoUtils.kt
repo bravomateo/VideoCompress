@@ -1,4 +1,4 @@
-package com.example.videoresolution
+package com.example.videoresolution.videoEdit.util
 
 import android.content.Context
 import android.os.AsyncTask
@@ -9,6 +9,9 @@ import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import com.arthenica.mobileffmpeg.FFmpeg
+import com.example.videoresolution.R
+import com.example.videoresolution.videoEdit.activity.LoginSecActivity
+import com.example.videoresolution.videoEdit.activity.MainActivity
 import okhttp3.MediaType
 import okhttp3.MultipartBody
 import okhttp3.RequestBody

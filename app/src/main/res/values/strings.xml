@@ -2,6 +2,15 @@
     <string name="app_name">SICOP 2</string>
 
 
+    <!-- Login Activity -->
+    <string name="login_toast_no_found_farms">Sincronizar y seleccionar una finca válida</string>
+    <string name="login_tittle_SICOP_APP">SICOP APP</string>
+
+    <!-- Main Activity -->
+    <string name="main_toast_no_found_blocks">Seleccionar un bloque</string>
+    <string name="main_toast_no_found_bed">Seleccionar una cama</string>
+
+    <!-- Main Activity - 360 App -->
     <string name="main_toolbar_title">SDK DEMO</string>
     <string name="main_toast_camera_connected">Camara conectada</string>
     <string name="main_toast_camera_disconnected">Camera disconnected</string>
@@ -34,14 +43,16 @@
     <string name="live_toast_unbind_mobile_network">Unbind mobile network</string>
     <string name="live_toast_unbind_mobile_network_when_lost">Lost mobile network, temporarily unbind</string>
 
-    <string name="capture_switch_front_sensor">Front Sensor</string>
-    <string name="capture_normal_record_start">Start Normal Record</string>
-    <string name="capture_normal_record_stop">Stop Normal Record</string>
-    <string name="capture_capture_working">Capture Working...</string>
-    <string name="capture_capture_time">CaptureTime: %s</string>
-    <string name="capture_play_local_file">Download and Play Local File</string>
-    <string name="capture_capture_count">Capture Count: %d</string>
-    <string name="capture_play_camera_file">Play Camera File</string>
+    <!-- Capture Activity - 360 App -->
+
+    <!-- Capture Activity - 360 App - Layout -->
+    <string name="capture_normal_record_start">Iniciar grabación </string>
+    <string name="capture_normal_record_stop">Detener grabación </string>
+    <string name="capture_capture_working">Capturando...</string>
+    <string name="capture_capture_time">Tiempo de captura: %s</string>
+    <string name="capture_capture_count">Número de capturas: %d</string>
+    <string name="capture_play_local_file">Descargar video</string>
+
 
     <string name="capture_toolbar_title">Capture &amp; Listener</string>
     <string name="capture_toast_sd_card_error">No SD card inserted or Not enough free space</string>
@@ -54,7 +65,7 @@
     <string name="capture_switch_sensor_failed">Switch failed</string>
     <string name="capture_switch_sensor_camera_connect_error">Camera is not connected</string>
 
-    <string name="osc_dialog_title_downloading">Descargando Archivos</string>
+    <string name="osc_dialog_title_downloading">Descargando...</string>
     <string name="osc_dialog_msg_downloading">"Total %1$d, Correctos %2$d, Fallidos %3$d</string>
 
 
@@ -64,7 +75,7 @@
     <string name="play_export_original">Export\nPanorama</string>
     <string name="play_toast_load_finish">Load finish</string>
     <string name="play_toast_fail_desc">Error code: %1$d, Message: %2$s</string>
-    <string name="preview_mode_normal">Normal</string>
+
     <string name="export_dialog_stop">Stop</string>
     <string name="export_dialog_ok">OK</string>
     <string name="export_dialog_msg_exporting">Exporting...</string>
@@ -72,4 +83,26 @@
     <string name="export_dialog_msg_export_failed">Export failed(%d)</string>
     <string name="export_dialog_msg_export_stopped">Export Stopped</string>
     <string name="export_dialog_msg_export_progress">Export progress： %s</string>
+
+
+    <string name="preview_toolbar_title">Preview -- Normal Mode</string>
+    <string name="preview_angle">Preview Type:</string>
+    <string name="preview_mode_normal">Normal</string>
+    <string name="preview_mode_fisheye">Fisheye</string>
+    <string name="preview_mode_perspective">Perspective</string>
+    <string name="preview_mode_plane">Plane</string>
+
+    <string name="stab_type">Stabilizing Type:</string>
+    <string name="choose_resolution">Resolution Selection:</string>
+    <string name="full_demo_start">Start</string>
+    <string name="full_demo_stop">Stop</string>
+
+
+    <string name="stab_type_auto">Auto Select</string>
+    <string name="stab_type_panorama">For Panorama</string>
+    <string name="stab_type_calibrate_horizon">Align the horizon only</string>
+    <string name="stab_type_footage_motion_smooth">Smooth footage motion, no horizon alignment</string>
+    <string name="stab_type_off">OFF</string>
+
+
 </resources>

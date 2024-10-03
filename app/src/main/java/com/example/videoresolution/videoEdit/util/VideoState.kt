@@ -1,4 +1,4 @@
-package com.example.videoresolution
+package com.example.videoresolution.videoEdit.util
 
 enum class VideoState {
     READY_TO_CONVERT,

@@ -1,5 +1,6 @@
-package com.example.videoresolution
+package com.example.videoresolution.videoEdit.util
 
+import com.example.videoresolution.videoEdit.activity.MainActivity
 import com.google.gson.annotations.SerializedName
 import okhttp3.MultipartBody
 import retrofit2.Call

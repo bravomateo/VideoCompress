@@ -1,7 +1,6 @@
-package com.example.videoresolution
+package com.example.videoresolution.videoEdit.util
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.Query
 

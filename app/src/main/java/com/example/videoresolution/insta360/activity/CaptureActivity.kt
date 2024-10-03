@@ -1,8 +1,11 @@
 package com.example.videoresolution.insta360.activity
 
+import android.content.Intent
+import android.media.MediaScannerConnection
 import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.view.SurfaceView
 import android.view.View
 import android.widget.Button
 import android.widget.TextView
@@ -10,16 +13,21 @@ import android.widget.Toast
 import com.afollestad.materialdialogs.MaterialDialog
 import com.afollestad.materialdialogs.customview.customView
 import com.afollestad.materialdialogs.customview.getCustomView
-
 import com.arashivision.sdkcamera.camera.InstaCameraManager
 import com.arashivision.sdkcamera.camera.callback.ICaptureStatusListener
+import com.arashivision.sdkmedia.player.capture.CaptureParamsBuilder
+import com.arashivision.sdkmedia.player.config.InstaStabType
 import com.example.videoresolution.R
 import com.example.videoresolution.insta360.util.TimeFormat
+import com.example.videoresolution.videoEdit.activity.MainActivity
 import com.lzy.okgo.OkGo
 import com.lzy.okgo.callback.FileCallback
 import com.lzy.okgo.model.Response
 import java.io.File
 import java.util.concurrent.atomic.AtomicInteger
+
+data class Resolution(val width: Int, val height: Int, val fps: Int)
+
 
 class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
 
@@ -33,14 +41,24 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
     private lateinit var selectedBlock: String
     private lateinit var selectedBed: String
 
+
+    private lateinit var mCurrentResolution: Resolution
+
+    private val mSurfaceView: SurfaceView? = null // Just for custom surface
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_capture)
         setTitle(R.string.capture_toolbar_title)
 
+        val blocksList = intent.getStringArrayExtra("blocksList")?.mapNotNull { it }?.toTypedArray() ?: arrayOf()
+
         selectedFarm = intent.getStringExtra("selectedFarm") ?: ""
         selectedBlock = intent.getStringExtra("selectedBlock") ?: ""
         selectedBed = intent.getStringExtra("selectedBed") ?: ""
+
+
 
         bindViews()
 
@@ -49,16 +67,34 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
             return
         }
 
+
         findViewById<View>(R.id.btn_normal_record_start).setOnClickListener { _ ->
-            if (checkSdCardEnabled()) {InstaCameraManager.getInstance().startNormalRecord()}
+            if (checkSdCardEnabled()) {
+                InstaCameraManager.getInstance().startNormalRecord()
+            }
         }
 
         findViewById<View>(R.id.btn_normal_record_stop).setOnClickListener { _ ->
             InstaCameraManager.getInstance().stopNormalRecord()
+
         }
+
+        val btnHome: Button = findViewById(R.id.btn_home)
+
+        btnHome.setOnClickListener {
+            val intent = Intent(this, MainActivity::class.java)
+            intent.putExtra("blocksList", blocksList )
+            intent.putExtra("selectedFarm", selectedFarm)
+            startActivity(intent)
+        }
+
+
 
         InstaCameraManager.getInstance().setCaptureStatusListener(this)
     }
+
+
+    // Método para configurar la cámara
 
     private fun bindViews() {
         mTvCaptureStatus = findViewById(R.id.tv_capture_status)
@@ -67,7 +103,6 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
         mBtnPlayLocalFile = findViewById(R.id.btn_play_local_file)
 
     }
-
     private fun checkSdCardEnabled(): Boolean {
         if (!InstaCameraManager.getInstance().isSdCardEnabled) {
             Toast.makeText(this, R.string.capture_toast_sd_card_error, Toast.LENGTH_SHORT).show()
@@ -159,9 +194,9 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
         }
 
         val dialogView = dialog.getCustomView()
-        val messageTextView = dialogView.findViewById<TextView>(R.id.dialog_message)
+        //val messageTextView = dialogView.findViewById<TextView>(R.id.dialog_message)
 
-        messageTextView.text = getString(R.string.osc_dialog_msg_downloading, urls.size, 0, 0)
+        //messageTextView.text = getString(R.string.osc_dialog_msg_downloading, urls.size, 0, 0)
 
         val successfulCount = AtomicInteger(0)
         val errorCount = AtomicInteger(0)
@@ -178,6 +213,10 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
 
                 override fun onSuccess(response: Response<File>) {
                     successfulCount.incrementAndGet()
+                    MediaScannerConnection.scanFile(this@CaptureActivity, arrayOf(localPaths[i]), null) { path, uri ->
+                        Log.d("MediaScanner", "Scanned $path:")
+                        Log.d("MediaScanner", "-> uri=$uri")
+                    }
                     checkDownloadCount()
                 }
 
@@ -185,9 +224,9 @@ class CaptureActivity : BaseObserveCameraActivity(), ICaptureStatusListener {
                     val success = successfulCount.toInt()
                     val error = errorCount.toInt()
                     val total = urls.size
-                    val message = getString(R.string.osc_dialog_msg_downloading, total, success, error)
+                    //val message = getString(R.string.osc_dialog_msg_downloading, total, success, error)
 
-                    runOnUiThread {messageTextView.text = message}
+                    //runOnUiThread {messageTextView.text = message}
 
                     if (success + error >= total) {
                         dialog.dismiss()

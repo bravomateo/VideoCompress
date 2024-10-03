@@ -1,4 +1,4 @@
-package com.example.videoresolution
+package com.example.videoresolution.videoEdit.util
 import android.content.Context
 import android.util.Log
 import android.view.Gravity
@@ -8,57 +8,13 @@ import android.widget.ArrayAdapter
 import android.widget.AutoCompleteTextView
 import android.widget.TextView
 import android.widget.Toast
+import com.example.videoresolution.R
+import com.example.videoresolution.videoEdit.activity.MainActivity
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
 object ApiUtils {
-    fun getAndSetFarmsDropdown(context: Context, farmsDropdown: AutoCompleteTextView) {
-        val farmsCall = MainActivity.RetrofitClient.instanceForGet.getFarms()
-
-        farmsCall.enqueue(object : Callback<FarmResponse> {
-            override fun onResponse(call: Call<FarmResponse>, response: Response<FarmResponse>) {
-                if (response.isSuccessful) {
-                    val farmResponse = response.body()
-
-                    if (farmResponse != null) {
-                        showToastCustom(context, "Fincas obtenidas.")
-                        val farmsList = farmResponse.farms
-                        val farmInitials =
-                            farmsList.map { farm -> farm.name.split(" - ")[1] ?: "Sin Siglas" }
-
-
-                        val farmAdapter = ArrayAdapter(
-                            context,
-                            R.layout.list_item,
-                            farmInitials
-                        )
-                        farmsDropdown.setAdapter(farmAdapter)
-                    }
-                } else {
-                    showToastCustom(
-                        context,
-                        "Error al obtener fincas del servidor. Código: ${response.code()}."
-                    )
-                }
-            }
-
-            override fun onFailure(call: Call<FarmResponse>, t: Throwable) {
-                showToastCustom(context, "Error en la solicitud de fincas: ${t.message}.")
-                Log.e("GetFarms", "Error en la solicitud al servidor de fincas: ${t.message}", t)
-            }
-        })
-    }
-
-    fun setBlocksDropdown(context: Context, dropdown: AutoCompleteTextView, blockNumbers: Array<String>) {
-        val adapter = ArrayAdapter(
-            context,
-            R.layout.list_item,
-            blockNumbers
-        )
-        dropdown.setAdapter(adapter)
-    }
-
 
     enum class BlockRequestStatus {
         LOADING,
@@ -66,8 +22,36 @@ object ApiUtils {
         ERROR
     }
 
+    fun getAndSetFarmsDropdown(context: Context, farmsDropdown: AutoCompleteTextView) {
+        val farmsCall = MainActivity.RetrofitClient.instanceForGet.getFarms()
+
+        farmsCall.enqueue(object : Callback<FarmResponse> {
+            override fun onResponse(call: Call<FarmResponse>, response: Response<FarmResponse>) {
+                if (response.isSuccessful) {
+                    val farmResponse = response.body()
+                    if (farmResponse != null) {
+                        showToastCustom(context, "Fincas obtenidas.")
+                        val farmsList = farmResponse.farms
+                        val farmInitials = farmsList.map { farm -> farm.name.split(" - ")[1] ?: "Sin Siglas" }
+                        val farmAdapter = ArrayAdapter(context, R.layout.list_item, farmInitials)
+                        farmsDropdown.setAdapter(farmAdapter)}
+                } else {
+                    showToastCustom(context, "Error al obtener fincas del servidor. Código: ${response.code()}.")
+                }
+            }
+
+            override fun onFailure(call: Call<FarmResponse>, t: Throwable) {
+                showToastCustom(context, "Error en la solicitud de fincas: ${t.message}.") }
+        })
+    }
+
+    fun setBlocksDropdown(context: Context, dropdown: AutoCompleteTextView, blockNumbers: Array<String>) {
+        val adapter = ArrayAdapter(context, R.layout.list_item, blockNumbers)
+        dropdown.setAdapter(adapter)
+    }
+
     fun getBlocks(context: Context, callback: (Array<String>?, BlockRequestStatus) -> Unit) {
-        // Indicar que la petición está en curso
+
         callback(null, BlockRequestStatus.LOADING)
 
         val blocksCall = MainActivity.RetrofitClient.instanceForGet.getBlocks()
@@ -96,7 +80,6 @@ object ApiUtils {
         })
     }
 
-
     private fun showToastCustom(context: Context, msg: String?) {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view: View = inflater.inflate(R.layout.custom_toast,null)
@@ -111,6 +94,5 @@ object ApiUtils {
         toast.show()
 
     }
-
 
 }

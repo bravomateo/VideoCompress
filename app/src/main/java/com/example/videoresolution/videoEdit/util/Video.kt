@@ -1,4 +1,4 @@
-package com.example.videoresolution
+package com.example.videoresolution.videoEdit.util
 
 import androidx.room.ColumnInfo
 import androidx.room.Entity

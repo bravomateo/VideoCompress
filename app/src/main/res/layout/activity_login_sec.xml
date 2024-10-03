@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#FFFFFF"
-    tools:context=".LoginSecActivity">
+    tools:context=".videoEdit.activity.LoginSecActivity">
 
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -19,7 +19,7 @@
         app:backgroundTint="@color/green"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.85"
+        app:layout_constraintHorizontal_bias="0.8"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/floatingActionButtonSync"
         app:layout_constraintVertical_bias="0.0"
@@ -30,7 +30,7 @@
         android:id="@+id/floatingActionButtonSync"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="64dp"
+        android:layout_marginTop="14dp"
         android:contentDescription="Description"
         android:scaleType="center"
 
@@ -39,7 +39,7 @@
         app:backgroundTint="@color/green"
         app:layout_constraintEnd_toEndOf="parent"
 
-        app:layout_constraintHorizontal_bias="0.85"
+        app:layout_constraintHorizontal_bias="0.8"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/recyclerView"
         app:maxImageSize="48dp"

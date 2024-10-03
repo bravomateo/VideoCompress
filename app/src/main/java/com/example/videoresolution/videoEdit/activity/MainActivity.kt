@@ -1,4 +1,4 @@
-package com.example.videoresolution
+package com.example.videoresolution.videoEdit.activity
 
 import android.Manifest
 import android.content.ContentResolver
@@ -33,7 +33,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
+import com.example.videoresolution.videoEdit.util.ApiUtils
+import com.example.videoresolution.videoEdit.util.AppDatabase
+import com.example.videoresolution.R
+import com.example.videoresolution.videoEdit.util.Video
+import com.example.videoresolution.videoEdit.util.VideoService
 import com.example.videoresolution.insta360.activity.MainActivityInsta360
+import com.google.android.material.textfield.TextInputEditText
 import com.google.gson.annotations.SerializedName
 import java.util.Calendar
 import retrofit2.Retrofit
@@ -43,8 +49,6 @@ import retrofit2.converter.gson.GsonConverterFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-
-
 class MainActivity : AppCompatActivity() {
 
     private val REQUEST_PERMISSION_CODE = 123
@@ -52,53 +56,81 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var blockDropdown: AutoCompleteTextView
     private lateinit var selectedBlock: String
+    private lateinit var selectedBed: String
 
     private var selectedOrientationDegrees = 0f
     private var selectedFarm: String = ""
-    private var selectedBed: String = ""
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        val editText  = findViewById<EditText>(R.id.editTextBed)
+
         selectedFarm = intent.getStringExtra("selectedFarm")!!
 
-
-        val selectFileButton: Button = findViewById(R.id.selectFileButton)
-        selectFileButton.setOnClickListener {
-            checkPermissionsAndOpenFilePicker()
-        }
+        selectedBed = findViewById<EditText>(R.id.editTextBed).text.toString()
 
         blockDropdown = findViewById(R.id.dropdown_field_blocks)
+
+        val selectFileButton: Button = findViewById(R.id.selectFileButton)
+        selectFileButton.setOnClickListener {checkPermissionsAndOpenFilePicker()}
+
         val blocksItems = arrayOf("Sin bloques")
         val blocksAdapter = ArrayAdapter(this, R.layout.list_item, blocksItems)
         blockDropdown.setAdapter(blocksAdapter)
-
         blockDropdown.setOnItemClickListener { _, _, position, _ -> selectedBlock = blockDropdown.adapter.getItem(position).toString() }
 
 
         val blocksList = intent.getStringArrayExtra("blocksList")?.mapNotNull { it }?.toTypedArray() ?: arrayOf()
         ApiUtils.setBlocksDropdown(this, blockDropdown, blocksList)
 
-        selectedBed = findViewById<EditText>(R.id.editTextBed).text.toString()
 
         val listVideosButton: ImageButton = findViewById(R.id.ListVideos)
         listVideosButton.setOnClickListener {
             val intent = Intent(this, LoginSecActivity::class.java)
             intent.putExtra("blocksList", blocksList )
+            intent.putExtra("selectedFarm", selectedFarm)
             startActivity(intent)
         }
 
-        val camera360Button: ImageButton = findViewById(R.id.Camera360button)
-        camera360Button.setOnClickListener {
+        val editTextWidth = findViewById<TextInputEditText>(R.id.editTextWidth)
+        val editTextHeight = findViewById<TextInputEditText>(R.id.editTextHeight)
+        val editTextFPS = findViewById<TextInputEditText>(R.id.editTextFPS)
+        editTextWidth.setText("1920")
+        editTextHeight.setText("1080")
+        editTextFPS.setText("60")
+
+
+
+        findViewById<View>(R.id.Camera360button).setOnClickListener {
+
             val intent = Intent(this, MainActivityInsta360::class.java)
-            intent.putExtra("selectedFarm", selectedFarm)
+
+            val bed = editText.text.toString()
+
+            if (!::selectedBlock.isInitialized || selectedBlock.isEmpty()) {
+                showToast(this, getString(R.string.main_toast_no_found_blocks))
+                return@setOnClickListener
+            }
+
+            if (bed.isEmpty()) {
+                showToast(this, getString(R.string.main_toast_no_found_bed))
+                return@setOnClickListener
+            }
+
+
             intent.putExtra("selectedBlock", selectedBlock)
-            intent.putExtra("selectedBed", selectedBed)
+            intent.putExtra("selectedBed", bed)
+            intent.putExtra("blocksList", blocksList )
+            intent.putExtra("selectedFarm", selectedFarm)
+
             startActivity(intent)
         }
 
     }
+
     private fun checkPermissionsAndOpenFilePicker() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
@@ -117,11 +149,8 @@ class MainActivity : AppCompatActivity() {
         val intent = Intent(Intent.ACTION_PICK, MediaStore.Video.Media.EXTERNAL_CONTENT_URI)
         startActivityForResult(intent, REQUEST_VIDEO_CODE)
     }
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<out String>,
-        grantResults: IntArray
-    ) {
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         if (requestCode == REQUEST_PERMISSION_CODE && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -132,7 +161,6 @@ class MainActivity : AppCompatActivity() {
             showToast(this,"Permiso denegado. No se puede seleccionar el video.")
         }
     }
-
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -156,7 +184,7 @@ class MainActivity : AppCompatActivity() {
                 outputDirectory.mkdirs()
 
 
-                val currentDateTime = obtenerFechaYHoraActual()
+                val currentDateTime = getCurrentDateTime()
                 val outputFilePath = File(outputDirectory, "${currentDateTime}.mp4").absolutePath
                 showFirstFramePreview(selectedVideoUri, originalPath, outputFilePath, width, height, fps, selectedFarm, block, bed)
 
@@ -169,11 +197,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun rotateBitmap(source: Bitmap, degrees: Float): Bitmap {
+        val matrix = Matrix()
+        matrix.postRotate(degrees)
+        return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
+    }
+
     private fun showFirstFramePreview(videoUri: Uri, originalPath: String, outputFilePath: String, width: String, height: String, fps: String, farm: String, block: String, bed: String) {
         val retriever = MediaMetadataRetriever()
-        retriever.setDataSource(this, videoUri)
         val timeMicros = 0L
         val firstFrameBitmap = retriever.getFrameAtTime(timeMicros)
+        retriever.setDataSource(this, videoUri)
 
 
         val dialogView = LayoutInflater.from(this).inflate(R.layout.dialog_preview, null)
@@ -183,83 +217,53 @@ class MainActivity : AppCompatActivity() {
 
         imageView.setImageBitmap(firstFrameBitmap)
 
-        val dialog = AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setCancelable(false)
-            .create()
+        val dialog = AlertDialog.Builder(this).setView(dialogView).setCancelable(false).create()
 
-        rotateButton.setOnClickListener {
-            firstFrameBitmap?.let { bitmap ->
-                selectedOrientationDegrees = (selectedOrientationDegrees + 90) % 360
-                val rotatedBitmap = rotateBitmap(bitmap, selectedOrientationDegrees)
-                imageView.setImageBitmap(rotatedBitmap)
-            }
+        rotateButton.setOnClickListener {firstFrameBitmap?.let { bitmap -> selectedOrientationDegrees = (selectedOrientationDegrees + 90) % 360
+            val rotatedBitmap = rotateBitmap(bitmap, selectedOrientationDegrees)
+            imageView.setImageBitmap(rotatedBitmap) }
         }
 
-        acceptButton.setOnClickListener {
-            dialog.dismiss()
-            Log.e("SelectedOrientation", "Valor de selectedOrientationDegrees: $selectedOrientationDegrees")
-            showTrimVideoDialog(videoUri, originalPath, outputFilePath, width, height, fps, farm, block, bed)
-        }
-
+        acceptButton.setOnClickListener {dialog.dismiss(); showTrimVideoDialog(videoUri, originalPath, outputFilePath, width, height, fps, farm, block, bed)}
         dialog.show()
-    }
-    private fun rotateBitmap(source: Bitmap, degrees: Float): Bitmap {
-        val matrix = Matrix()
-        matrix.postRotate(degrees)
-        return Bitmap.createBitmap(source, 0, 0, source.width, source.height, matrix, true)
     }
 
     private fun showTrimVideoDialog(videoUri: Uri, originalPath: String, outputFilePath: String, width: String, height: String, fps: String, farm: String, block: String, bed: String) {
         val dialogView = layoutInflater.inflate(R.layout.trip_video, null)
         val acceptButtonTrim = dialogView.findViewById<Button>(R.id.acceptButtonTrim)
-
         val trimSeekBar = dialogView.findViewById<SeekBar>(R.id.seekBar)
         val progressTextView = dialogView.findViewById<TextView>(R.id.progressTextView)
         val videoView = dialogView.findViewById<VideoView>(R.id.videoView)
-
         val trimSeekEndBar = dialogView.findViewById<SeekBar>(R.id.seekEndBar)
         val progressEndTextView = dialogView.findViewById<TextView>(R.id.progressEndTextView)
-
-
-        val dialog = AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setCancelable(false)
-            .create()
-
+        val dialog = AlertDialog.Builder(this).setView(dialogView).setCancelable(false).create()
         val retriever = MediaMetadataRetriever()
-        retriever.setDataSource(this, videoUri)
         val durationString = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)
         val durationTime = durationString?.toInt() ?: 0
 
+        retriever.setDataSource(this, videoUri)
+
         videoView.setVideoURI(videoUri)
-        videoView.setOnPreparedListener { mp ->
-            mp.start()
-        }
+        videoView.setOnPreparedListener { mp -> mp.start()}
 
         trimSeekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                val initialSearchValue = progress * 1000
                 progressTextView.text = "${progress} seg"
-                val valorbuscadoinicial = progress * 1000
-                videoView.seekTo(valorbuscadoinicial)
+                videoView.seekTo(initialSearchValue)
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                videoView.pause()
-            }
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {videoView.pause()}
 
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {
-                videoView.start()
-            }
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {videoView.start()}
+
         })
 
         trimSeekEndBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                val searchedValue = durationTime - progress * 1000
                 progressEndTextView.text = "${progress} seg"
-                val valorbuscado = durationTime - progress * 1000
-                videoView.seekTo(valorbuscado)
-
-            }
+                videoView.seekTo(searchedValue)}
 
             override fun onStartTrackingTouch(seekBar: SeekBar?) {
                 videoView.pause()
@@ -282,37 +286,56 @@ class MainActivity : AppCompatActivity() {
             selectedOrientationDegrees = 0f
 
             val resolution = "$width x $height"
-            val videoName = obtenerFechaYHoraActual()
+            val videoName = getCurrentDateTime()
             updateInfoROOM(videoName, resolution, outputFilePath, originalPath, startTime, endTime, width, height, fps, farm, block, bed)
 
         }
-
         dialog.show()
     }
 
-    private fun obtenerFechaYHoraActual(): String {
-        val calendario = Calendar.getInstance()
-        val mes = calendario.get(Calendar.MONTH) + 1
-        val dia = calendario.get(Calendar.DAY_OF_MONTH)
-        val anio = calendario.get(Calendar.YEAR)
-        val hora = calendario.get(Calendar.HOUR_OF_DAY)
-        val minuto = calendario.get(Calendar.MINUTE)
-        val segundo = calendario.get(Calendar.SECOND)
+    private fun getCurrentDateTime(): String {
+        val calendar = Calendar.getInstance()
+        val month = calendar.get(Calendar.MONTH) + 1
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val year = calendar.get(Calendar.YEAR)
+        val hour = calendar.get(Calendar.HOUR_OF_DAY)
+        val minute = calendar.get(Calendar.MINUTE)
+        val second = calendar.get(Calendar.SECOND)
 
-        val mesFormateado = if (mes < 10) "0$mes" else mes.toString()
-        val diaFormateado = if (dia < 10) "0$dia" else dia.toString()
-        val horaFormateada = if (hora < 10) "0$hora" else hora.toString()
-        val minutoFormateado = if (minuto < 10) "0$minuto" else minuto.toString()
-        val segundoFormateado = if (segundo < 10) "0$segundo" else segundo.toString()
+        val formattedMonth = if (month < 10) "0$month" else month.toString()
+        val formattedDay = if (day < 10) "0$day" else day.toString()
+        val formattedHour = if (hour < 10) "0$hour" else hour.toString()
+        val formattedMinute = if (minute < 10) "0$minute" else minute.toString()
+        val formattedSecond = if (second < 10) "0$second" else second.toString()
 
-        return "$diaFormateado-$mesFormateado-$anio-$horaFormateada-$minutoFormateado-$segundoFormateado"
+        return "$formattedDay-$formattedMonth-$year-$formattedHour-$formattedMinute-$formattedSecond"
     }
+
+    private fun getRealPathFromUri(uri: Uri): String {
+        val contentResolver: ContentResolver = contentResolver
+        val projection = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor = contentResolver.query(uri, projection, null, null, null)
+        val columnIndex = cursor?.getColumnIndexOrThrow(MediaStore.Images.Media.DATA); cursor?.moveToFirst()
+        val path = columnIndex?.let { cursor.getString(it) } ?: "" ; cursor?.close()
+        return path
+    }
+
+    private fun updateInfoROOM(videoName: String, resolution: String, outputFilePath: String, originalPath: String, startTime: Int, endTime: Int, width: String, height: String, fps: String, farm: String, block: String, bed: String) {
+        val db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "database-name").build()
+        val videoDao = db.videoDao()
+
+        lifecycleScope.launch(Dispatchers.IO) {
+            val video = Video(  null, videoName, resolution, outputFilePath, originalPath, startTime, endTime, width, height, fps, farm, block, bed)
+            videoDao.insertAll(video)
+        }
+    }
+
     private fun showToast(context: Context, msg: String?) {
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val view: View = inflater.inflate(R.layout.custom_toast,null)
 
-        val txtMensaje = view.findViewById<TextView>(R.id.txtMensajeToast1)
-        txtMensaje.text = msg
+        val txtMessage = view.findViewById<TextView>(R.id.txtMensajeToast1)
+        txtMessage.text = msg
 
         val toast = Toast(context)
         toast.setGravity(Gravity.CENTER_VERTICAL or Gravity.BOTTOM, 0, 200)
@@ -322,46 +345,6 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    private fun getRealPathFromUri(uri: Uri): String {
-        val contentResolver: ContentResolver = contentResolver
-        val projection = arrayOf(MediaStore.Images.Media.DATA)
-        val cursor = contentResolver.query(uri, projection, null, null, null)
-        val columnIndex = cursor?.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-        cursor?.moveToFirst()
-        val path = columnIndex?.let { cursor.getString(it) } ?: ""
-        cursor?.close()
-        return path
-    }
-
-    private fun updateInfoROOM(
-        videoName: String,
-        resolution: String,
-        outputFilePath: String,
-        originalPath: String,
-        startTime: Int,
-        endTime: Int,
-        width: String,
-        height: String,
-        fps: String,
-        farm: String,
-        block: String,
-        bed: String
-    )
-    {
-        val db = Room.databaseBuilder(
-            applicationContext,
-            AppDatabase::class.java, "database-name"
-        ).build()
-
-        val videoDao = db.videoDao()
-
-        lifecycleScope.launch(Dispatchers.IO) {
-            val video = Video(  null, videoName, resolution, outputFilePath, originalPath, startTime, endTime, width, height, fps, farm, block, bed)
-            videoDao.insertAll(video)
-        }
-    }
-
-
     data class YourResponseModelVideo(
         @SerializedName("error") val error: Boolean,
         @SerializedName("message") val message: MessageVideo
@@ -369,10 +352,12 @@ class MainActivity : AppCompatActivity() {
     data class MessageVideo(
         @SerializedName("filename") val filename: String
     )
+
     data class YourResponseModel(
         @SerializedName("error") val error: Boolean,
         @SerializedName("message") val messages: List<Message>
     )
+
     data class Message(
         @SerializedName("farm") val farm: String,
         @SerializedName("block") val block: String,
@@ -382,36 +367,20 @@ class MainActivity : AppCompatActivity() {
         @SerializedName("FPS") val fps: String,
         @SerializedName("ID") val id: String
     )
+
     object RetrofitClient {
-        // Samsung WIFI
-        // 192.168.242.45
-        //private const val BASE_URL_UPLOAD = "http://192.168.242.45:8000"
-
-        // Home WIFI
-        private const val BASE_URL_UPLOAD = "http://192.168.58.104:8000"
-
+        private const val BASE_URL_UPLOAD = "http://192.168.58.103:8000"
         private const val BASE_URL_GET = "http://10.1.2.22:544"
 
-        private val okHttpClient = OkHttpClient.Builder()
-            .build()
+        private val okHttpClient = OkHttpClient.Builder().build()
 
         val instance: VideoService by lazy {
-            val retrofit = Retrofit.Builder()
-                .baseUrl(BASE_URL_UPLOAD)
-                .client(okHttpClient)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-
+            val retrofit = Retrofit.Builder().baseUrl(BASE_URL_UPLOAD).client(okHttpClient).addConverterFactory(GsonConverterFactory.create()).build()
             retrofit.create(VideoService::class.java)
         }
 
         val instanceForGet: VideoService by lazy {
-            val retrofit = Retrofit.Builder()
-                .baseUrl(BASE_URL_GET)
-                .client(okHttpClient)
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-
+            val retrofit = Retrofit.Builder().baseUrl(BASE_URL_GET).client(okHttpClient).addConverterFactory(GsonConverterFactory.create()).build()
             retrofit.create(VideoService::class.java)
         }
     }

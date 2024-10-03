@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -19,6 +19,9 @@
         android:usesCleartextTraffic="true"
         tools:targetApi="31">
         <activity
+            android:name=".insta360.activity.PreviewActivity"
+            android:exported="false" />
+        <activity
             android:name=".insta360.activity.PlayAndExportActivity"
             android:exported="false" />
         <activity
@@ -28,10 +31,10 @@
             android:name=".insta360.activity.MainActivityInsta360"
             android:exported="false" />
         <activity
-            android:name=".LoginSecActivity"
+            android:name=".videoEdit.activity.LoginSecActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".videoEdit.activity.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -40,7 +43,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".MainActivity"
+            android:name=".videoEdit.activity.MainActivity"
             android:exported="false" />
     </application>
 

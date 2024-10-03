@@ -1,3 +1,5 @@
+package com.example.videoresolution.videoEdit.util
+
 import android.content.Context
 import android.util.Log
 import android.view.LayoutInflater
@@ -9,9 +11,6 @@ import android.widget.TextView
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 import com.example.videoresolution.R
-import com.example.videoresolution.Video
-import com.example.videoresolution.VideoState
-import com.example.videoresolution.VideoUtils
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
@@ -146,41 +145,15 @@ class ItemAdapter(
         }
     }
 
-
     fun isUploading(): Boolean {
         for (videoState in videoStates.values) {
-            if (videoState == VideoState.UPLOADING) {
-                return true
-            }
+            if (videoState == VideoState.UPLOADING) {return true}
         }
         return false
     }
 
-
-    fun uploadVideo(
-        lifecycleOwner: LifecycleOwner,
-        position: Int,
-        context: Context,
-        outputFilePath: String,
-        startTime: Int,
-        endTime: Int,
-        originalPath: String,
-        width: String,
-        height: String,
-        fps: String,
-    ) {
-
-        // Actualizar el estado de carga del video a UPLOADING
+    fun uploadVideo(position: Int, context: Context, outputFilePath: String, startTime: Int, endTime: Int, originalPath: String, width: String, height: String, fps: String, ) {
         updateVideoState(position, VideoState.UPLOADING)
-
-        VideoUtils.VideoConversionTaskClass(context, outputFilePath, startTime, endTime, position)
-            .execute(
-                originalPath,
-                outputFilePath,
-                width,
-                height,
-                fps
-            )
-
+        VideoUtils.VideoConversionTaskClass(context, outputFilePath, startTime, endTime, position).execute(originalPath, outputFilePath, width, height, fps)
     }
 }

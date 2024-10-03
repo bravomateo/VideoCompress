@@ -5,12 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".MainActivity">
+    tools:context=".videoEdit.activity.MainActivity">
 
     <ImageView
         android:id="@+id/imageViewCapiro"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="354dp"
+        android:layout_height="70dp"
         android:layout_marginTop="16dp"
         app:layout_constraintBottom_toTopOf="@+id/textViewCaracteristicas"
         app:layout_constraintDimensionRatio="357:120"
@@ -24,7 +24,7 @@
         android:id="@+id/textViewCaracteristicas3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:fontFamily="@font/sf_pro_display_bold"
         android:gravity="center"
         android:text="Características de video:"
@@ -41,7 +41,7 @@
         android:id="@+id/textViewCaracteristicas"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="6dp"
         android:fontFamily="@font/sf_pro_display_bold"
         android:gravity="center"
         android:text="Edición de Video"
@@ -56,7 +56,7 @@
         android:id="@+id/textViewCaracteristicas2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:fontFamily="@font/sf_pro_display_bold"
         android:gravity="center"
         android:text="Información de video:"
@@ -64,7 +64,7 @@
         android:textSize="16sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.2"
+        app:layout_constraintHorizontal_bias="0.18"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewCaracteristicas" />
 
@@ -73,10 +73,11 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:backgroundTint="@color/black"
         android:hint="Bloque"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.501"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewCaracteristicas2">
 
@@ -96,7 +97,7 @@
         android:id="@+id/bedAndFarmLayout"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:layout_weight="1"
         android:fontFamily="@font/sf_ro_display_regular"
         android:hint="Cama"
@@ -192,7 +193,7 @@
         android:id="@+id/selectFileButton"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="12dp"
         android:backgroundTint="@color/green"
         android:fontFamily="@font/sf_ro_display_regular"
         android:text="Selecccionar Video"
@@ -202,17 +203,17 @@
         app:layout_constraintTop_toBottomOf="@+id/editTextLayout" />
 
 
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/ListVideos"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="6dp"
         android:contentDescription="Description"
         android:scaleType="center"
         android:src="@drawable/volver"
         app:backgroundTint="@color/green"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.85"
+        app:layout_constraintHorizontal_bias="0.8"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/selectFileButton"
         app:maxImageSize="48dp"
@@ -229,7 +230,7 @@
         app:backgroundTint="@color/orange"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.85"
+        app:layout_constraintHorizontal_bias="0.8"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/ListVideos"
         app:layout_constraintVertical_bias="0.0"
